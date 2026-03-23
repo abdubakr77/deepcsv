@@ -1,40 +1,56 @@
 # deepcsv
 
-A Python library that automatically walks through folders and subfolders, finds all CSV and XLSX files, converts list strings into real Python lists, and saves the results in a new folder while keeping the exact same folder structure.
+A Python library that automatically walks through folders and subfolders, finds all CSV and XLSX files, detects and fixes data issues, and saves the results as Parquet files while keeping the exact same folder structure.
 
 ## Installation
 ```bash
 pip install deepcsv
 ```
 
+## What it does
+
+- Walks through all folders and subfolders automatically
+- Finds every CSV and XLSX file
+- Detects columns that contain list strings like `"['item1', 'item2']"` and converts them into real Python arrays for faster performance
+- Detects columns with mixed data types and tries to fix them automatically
+- Warns you when a column has mixed types so you know what was changed
+- Saves the results as Parquet files to preserve the converted data types
+
+> **Why Parquet?**
+> CSV files cannot store arrays or preserve data types. Parquet solves this by keeping the exact types after conversion.
+
+> **Why arrays instead of Python lists?**
+> Arrays are significantly faster for numerical operations and machine learning workflows.
+
 ## Functions
 
-### `ReadAllCSVData(path)`
-Walks through all folders and subfolders, finds every CSV and XLSX file, converts list strings to real lists, and saves everything in a new folder called `All CSV Data is Converted Here` with the same structure.
+### `ConvertListStrToList(file_path)`
+
+Reads a CSV file, converts list strings to arrays, fixes mixed-type columns, and returns a clean DataFrame.
 ```python
 import deepcsv
 
-deepcsv.ReadAllCSVData("C:/Users/Data")
+df = deepcsv.ConvertListStrToList("path/to/file.csv")
 ```
 
-### `ConvertListStrToList(df)`
-Takes a single DataFrame and converts any column that contains list strings into real Python lists. Skips `NaN` values automatically.
+### `ReadAllCSVData(path)`
+
+Walks through all folders and subfolders, applies `ConvertListStrToList` on every CSV and XLSX file, and saves the results as Parquet files in a new folder called `All CSV Data is Converted Here`.
 ```python
 import deepcsv
-import pandas as pd
 
-df = pd.read_csv("file.csv")
-df_converted = deepcsv.ConvertListStrToList(df)
+deepcsv.ReadAllCSVData("path/to/folder")
 ```
 
 ## Notes
 
-- Supports `.csv` and `.xlsx` files
-- Skips `NaN` values without breaking
-- Keeps the exact folder structure in the output folder
-- Works on any level of nested folders
+- Only files that contain list string columns are saved as Parquet
+- Mixed-type columns are converted to float automatically when possible
+- Skips NaN values without breaking
+- Requires `pyarrow` for Parquet support
 
 ## Requirements
 
 - Python >= 3.7
 - pandas
+- pyarrow
