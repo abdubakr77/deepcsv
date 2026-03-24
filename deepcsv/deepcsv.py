@@ -1,13 +1,15 @@
-import pyarrow
-import os
-import warnings
-import numpy as np
+from os import listdir,mkdir,makedirs
+from os.path import join,relpath,dirname,isfile,isdir
 import pandas as pd
 from ast import literal_eval
-warnings.filterwarnings("ignore")
+from numpy import nan
+import pyarrow
+from warnings import filterwarnings
+filterwarnings("ignore")
 
 def ConvertListStrToList(File_Path):
-
+    print(File_Path)
+    print("-"*50)
     data = pd.read_csv(File_Path)
     for ColName in data.columns:
         
@@ -29,7 +31,7 @@ def ConvertListStrToList(File_Path):
 
         elif isinstance(First_Value , str) and First_Value.strip().startswith("["):
             
-            data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : literal_eval(x) if pd.notna(x) else np.nan)
+            data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : literal_eval(x) if pd.notna(x) else nan)
             data.drop(ColName,inplace=True,axis=1)
 
     return data
@@ -37,10 +39,10 @@ def ConvertListStrToList(File_Path):
 
 def ReadAllCSVData(WorkDirectoryPath):
 
-    base_output = os.path.join(WorkDirectoryPath, "All CSV Data is Converted Here")
+    base_output = join(WorkDirectoryPath, "All CSV Data is Converted Here")
     all_folders = [WorkDirectoryPath]
     
-    os.makedirs(base_output,exist_ok=True)
+    makedirs(base_output,exist_ok=True)
     
     while True:
 
@@ -48,27 +50,27 @@ def ReadAllCSVData(WorkDirectoryPath):
 
             Curr_Path = all_folders.pop(0)
 
-            for item_name in os.listdir(Curr_Path):
+            for item_name in listdir(Curr_Path):
                 
-                Sub_Item_Path = os.path.join(Curr_Path,item_name)
+                Sub_Item_Path = join(Curr_Path,item_name)
                 
-                if os.path.isfile(Sub_Item_Path) and (Sub_Item_Path.endswith(".csv") or Sub_Item_Path.endswith(".xlsx")):
+                if isfile(Sub_Item_Path) and (Sub_Item_Path.endswith(".csv") or Sub_Item_Path.endswith(".xlsx")):
                     
                         
 
                     df_converted = ConvertListStrToList(Sub_Item_Path)
                     df_converted.reset_index(drop=True,inplace=True)
 
-                    rel_path = os.path.relpath(Sub_Item_Path, WorkDirectoryPath)
-                    output = os.path.join(base_output,rel_path)
+                    rel_path = relpath(Sub_Item_Path, WorkDirectoryPath)
+                    output = join(base_output,rel_path)
                     if "List" in df_converted.columns[-1]:
                         print(Sub_Item_Path)
-                        os.makedirs(os.path.dirname(output),exist_ok=True)
+                        makedirs(dirname(output),exist_ok=True)
                         df_converted.to_parquet(output.replace(".csv", ".parquet"))
 
                     print("-"*50)
 
-                elif os.path.isdir(Sub_Item_Path):
+                elif isdir(Sub_Item_Path):
 
                     all_folders.append(Sub_Item_Path)
 
