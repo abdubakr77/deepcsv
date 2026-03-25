@@ -1,4 +1,4 @@
-# deepcsv (v0.5.0)
+# deepcsv
 
 Ever loaded a CSV file and found your carefully structured lists turned into useless strings?
 ````python
@@ -13,9 +13,9 @@ deepcsv fixes this automatically.
 
 `deepcsv` handles these cases automatically:
 - Reads CSV/XLSX files or existing DataFrames
-- Converts any string value starting with `[` into real NumPy arrays (fast and lightweight)
-- Detects and fixes mixed-type columns by safely converting them to numeric (float)
-- Recursively processes all CSV/XLSX files in subdirectories
+- Converts any string list value `"["` into real NumPy arrays (fast and lightweight)
+- Detects and fixes mixed-type columns by safely converting them to numeric
+- Recursively processes all CSV/XLSX files in each directory
 - Saves results as Parquet format to preserve types and speed up analysis
 
 ---

@@ -1,5 +1,6 @@
 import pyarrow
 import pandas as pd
+from ast import literal_eval
 from numpy import nan,array
 from os import listdir,makedirs
 from os.path import join,relpath,dirname,isfile,isdir
@@ -25,14 +26,11 @@ def process_file(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame:
 
     Examples:
         ### Process a CSV file
-        df = parse_lists('path/to/file.csv')
+        df = process_file('path/to/file.csv')
 
         ### Process an existing DataFrame
-        df = parse_lists(my_dataframe)
+        df = process_file(my_dataframe)
     """
-
-    print(f"Converting Now On {data_input}")
-    print("-"*50)
     
     try:
         data = pd.read_csv(data_input)
@@ -60,13 +58,13 @@ def process_file(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame:
 
         elif isinstance(First_Value , str) and First_Value.strip().startswith("["):
             
-            data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(x) if pd.notna(x) else nan)
+            data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
             data.drop(ColName,inplace=True,axis=1)
 
     return data
 
 
-def process_all_files(directory_path: str) -> None:
+def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here") -> None:
     """
     Recursively processes all CSV and XLSX files in a directory, converts array strings to NumPy arrays,
     and saves as Parquet files if array columns are present.
@@ -79,16 +77,17 @@ def process_all_files(directory_path: str) -> None:
 
     Parameters:
         directory_path (str): The root directory path to search for CSV/XLSX files.
+        output_dir (str): The Folder name that will be save all files inside
 
     Returns:
-        None: Files are saved to a subdirectory 'All CSV Files is Converted Here'.
+        None: Files are saved to a directory 'All CSV Files is Converted Here'.
 
     Examples:
         # Process all CSV files in a directory
-        auto_convert('/path/to/directory')
+        process_all_files('/path/to/directory',"Converted Files")
     """
 
-    base_output = join(directory_path, "All CSV Files is Converted Here")
+    base_output = join(directory_path, output_dir)
     all_folders = [directory_path]
     
     makedirs(base_output,exist_ok=True)
@@ -105,6 +104,8 @@ def process_all_files(directory_path: str) -> None:
                 
                 if isfile(Sub_Item_Path) and (Sub_Item_Path.endswith(".csv") or Sub_Item_Path.endswith(".xlsx")):
                     
+                    print(f"{Sub_Item_Path} File Is Processing Now...")
+
                     df_converted = process_file(Sub_Item_Path)
                     df_converted.reset_index(drop=True,inplace=True)
 
@@ -115,7 +116,8 @@ def process_all_files(directory_path: str) -> None:
                         makedirs(dirname(output),exist_ok=True)
                         df_converted.to_parquet(output.replace(".csv", ".parquet"))
 
-                    print("-"*50)
+                        print(f"Done!")
+                        print("-"*50)
 
                 elif isdir(Sub_Item_Path):
 
@@ -123,4 +125,3 @@ def process_all_files(directory_path: str) -> None:
 
         else:
             break
-
