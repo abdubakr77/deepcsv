@@ -1,4 +1,5 @@
-from .deepcsv import process_all_files, process_file,clean_values,read_any,_validate_cols,_validate_index
+from .deepcsv import process_all_files, process_file
+from .utils import read_any, clean_values
 from importlib.metadata import version
 import requests
 
@@ -9,7 +10,8 @@ def _check_for_updates():
         current = version("deepcsv")
         if latest != current:
             print(f"DeepCSV: New version {latest} available! — run 'pip install -U deepcsv'")
-    except:
+    except Exception:
         pass
+
 
 _check_for_updates()
