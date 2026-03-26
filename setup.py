@@ -8,7 +8,7 @@ changelog = (this_directory / "CHANGELOG.md").read_text(encoding="utf-8")
 
 setup(
     name="deepcsv",
-    version="0.5.0b1",
+    version="0.6.0",
     author="Abdullah Bakr",
     author_email="abdubakora1232@gmail.com",
     description="Automatically processes data files in directories, converts array-like strings to NumPy arrays, detects and fixes data type issues, and saves results as optimized Parquet files.",
@@ -21,7 +21,6 @@ setup(
     license="MIT",
     keywords="data-processing pandas numpy etl data-cleaning file-conversion automation parquet bulk-conversion",
     classifiers=[
-        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Scientific/Engineering :: Information Analysis",
