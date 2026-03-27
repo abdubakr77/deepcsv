@@ -8,10 +8,10 @@ changelog = (this_directory / "CHANGELOG.md").read_text(encoding="utf-8")
 
 setup(
     name="deepcsv",
-    version="0.6.0",
+    version="0.6.2b1",
     author="Abdullah Bakr",
     author_email="abdubakora1232@gmail.com",
-    description="Automatically processes data files in directories, converts array-like strings to NumPy arrays, detects and fixes data type issues, and saves results as optimized Parquet files.",
+    description="Automatically processes data files in directories, converts array-like strings to NumPy arrays, detects and fixes data type issues, and saves results as optimized Parquet files and MORE!",
     long_description=readme + "\n\n" + changelog,
     long_description_content_type="text/markdown",
     packages=find_packages(),

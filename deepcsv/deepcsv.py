@@ -1,7 +1,7 @@
 import pyarrow
 import pandas as pd
-from .utils import read_any, clean_values, _validate_cols, _validate_index
-from typing import Union, Optional
+from .utils import read_any, clean_values, _validate_cols, _validate_index,_parse_operator,_validate_condition
+from typing import Union
 from ast import literal_eval
 from numpy import nan,array
 from os import listdir,makedirs
