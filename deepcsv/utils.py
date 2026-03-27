@@ -1,7 +1,7 @@
 import operator
 import pandas as pd
 from typing import Optional, Union
-
+from pathlib import Path
 
 # ──────────────────────────────────────────────
 #               PRIVATE HELPERS
@@ -82,10 +82,71 @@ def _validate_condition(condition):
  
     return op_func, cond_val
 
+def _save_as(data: pd.DataFrame, current_dir = str(Path.cwd()), ext= str) -> None:
+    """
+    Saves a DataFrame to a file with the specified format.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The DataFrame to save.
+    file_path : str
+        Path without extension. Example: "data/myfile"
+    ext : str
+        File extension. Supported:
+        - .csv      → pd.to_csv()
+        - .xlsx     → pd.to_excel()
+        - .json     → pd.to_json()
+        - .parquet  → pd.to_parquet()
+        - .pkl      → pd.to_pickle()
+        - .feather  → pd.to_feather()
+        - .tsv      → pd.to_csv(sep='\\t')
+        - .html     → pd.to_html()
+        - .xml      → pd.to_xml()
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> save_as(df, "data/myfile", ".parquet")
+    >>> save_as(df, "data/myfile", ".csv")
+    """
+    ext = ext.strip().lower()
+    if not ext.startswith("."):
+        ext = f".{ext}"
+
+    full_path = f"{current_dir}{ext}"
+
+    writers = {
+        ".csv":     lambda: data.to_csv(full_path, index=False),
+        ".tsv":     lambda: data.to_csv(full_path, sep='\t', index=False),
+        ".xlsx":    lambda: data.to_excel(full_path, index=False),
+        ".json":    lambda: data.to_json(full_path, orient="records", indent=2),
+        ".parquet": lambda: data.to_parquet(full_path, index=False),
+        ".pkl":     lambda: data.to_pickle(full_path),
+        ".feather": lambda: data.to_feather(full_path),
+        ".html":    lambda: data.to_html(full_path, index=False),
+        ".xml":     lambda: data.to_xml(full_path, index=False),
+    }
+
+    writer = writers.get(ext)
+    if writer is None:
+        raise ValueError(
+            f"Unsupported extension: {ext!r}\n"
+            f"Supported: {list(writers.keys())}"
+        )
+
+    writer()
+    print(f"Saved: {full_path}")
+    print("-"*50)
+
 
 # ──────────────────────────────────────────────
 #               PUBLIC FUNCTIONS
 # ──────────────────────────────────────────────
+    
 
 def read_any(file_path: str) -> pd.DataFrame:
     """
@@ -139,7 +200,6 @@ def read_any(file_path: str) -> pd.DataFrame:
         return pd.read_sql(file_path)
     else:
         raise ValueError(f"Unsupported file type: {ext}")
-
 
 def clean_values(data_input: Union[str, pd.DataFrame],
                  cols: Optional[list] = None,
