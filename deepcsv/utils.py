@@ -1,7 +1,7 @@
 import operator
 import pandas as pd
 from typing import Optional, Union
-
+from pathlib import Path
 
 # ──────────────────────────────────────────────
 #               PRIVATE HELPERS
@@ -37,11 +37,116 @@ def _validate_index(index, data, reset_indx=False):
     missing = [i for i in index if i not in data.index]
     if missing:
         raise ValueError(f"These indexes are not in the dataframe: {missing}")
+    
+def _parse_operator(op_string: str):
+    op_map = {
+        ">=": operator.ge,
+        "<=": operator.le,
+        ">":  operator.gt,
+        "<":  operator.lt,
+        "==": operator.eq,
+        "!=": operator.ne,
+    }
+    op = op_map.get(op_string.strip())
+    if op is None:
+        raise ValueError(f"Operator not recognized: {op_string!r}. Choose from: {list(op_map.keys())}")
+    return op
+
+def _validate_condition(condition):
+    """
+    Validates condition list and returns (operator_func, value).
+    Expected format: [operator_string, number] or [number, operator_string]
+    Example: [">=", 500] or [500, ">="]
+    """
+    if not isinstance(condition, list):
+        raise TypeError("condition must be a list. Example: ['>=', 500]")
+    if len(condition) != 2:
+        raise RuntimeError(f"condition must have exactly 2 elements. Got {len(condition)}")
+ 
+    op_func, cond_val = None, None
+ 
+    for item in condition:
+        item_str = str(item).strip()
+        if item_str in ["==", "<=", ">=", "!=", "<", ">"]:
+            op_func = _parse_operator(item_str)
+        elif str(item).lstrip("-").replace(".", "", 1).isnumeric():
+            cond_val = float(item)
+        else:
+            raise ValueError(
+                f"Invalid condition item: {item!r}. "
+                "Should be like: ['>=', 500] or [500, '>=']"
+            )
+ 
+    if op_func is None or cond_val is None:
+        raise ValueError("condition must have one operator and one numeric value. Example: ['>=', 500]")
+ 
+    return op_func, cond_val
+
+def _save_as(data: pd.DataFrame, current_dir = str(Path.cwd()), ext= str) -> None:
+    """
+    Saves a DataFrame to a file with the specified format.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The DataFrame to save.
+    file_path : str
+        Path without extension. Example: "data/myfile"
+    ext : str
+        File extension. Supported:
+        - .csv      → pd.to_csv()
+        - .xlsx     → pd.to_excel()
+        - .json     → pd.to_json()
+        - .parquet  → pd.to_parquet()
+        - .pkl      → pd.to_pickle()
+        - .feather  → pd.to_feather()
+        - .tsv      → pd.to_csv(sep='\\t')
+        - .html     → pd.to_html()
+        - .xml      → pd.to_xml()
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> save_as(df, "data/myfile", ".parquet")
+    >>> save_as(df, "data/myfile", ".csv")
+    """
+    ext = ext.strip().lower()
+    if not ext.startswith("."):
+        ext = f".{ext}"
+
+    full_path = f"{current_dir}{ext}"
+
+    writers = {
+        ".csv":     lambda: data.to_csv(full_path, index=False),
+        ".tsv":     lambda: data.to_csv(full_path, sep='\t', index=False),
+        ".xlsx":    lambda: data.to_excel(full_path, index=False),
+        ".json":    lambda: data.to_json(full_path, orient="records", indent=2),
+        ".parquet": lambda: data.to_parquet(full_path, index=False),
+        ".pkl":     lambda: data.to_pickle(full_path),
+        ".feather": lambda: data.to_feather(full_path),
+        ".html":    lambda: data.to_html(full_path, index=False),
+        ".xml":     lambda: data.to_xml(full_path, index=False),
+    }
+
+    writer = writers.get(ext)
+    if writer is None:
+        raise ValueError(
+            f"Unsupported extension: {ext!r}\n"
+            f"Supported: {list(writers.keys())}"
+        )
+
+    writer()
+    print(f"Saved: {full_path}")
+    print("-"*50)
 
 
 # ──────────────────────────────────────────────
 #               PUBLIC FUNCTIONS
 # ──────────────────────────────────────────────
+    
 
 def read_any(file_path: str) -> pd.DataFrame:
     """
@@ -96,12 +201,14 @@ def read_any(file_path: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file type: {ext}")
 
-
 def clean_values(data_input: Union[str, pd.DataFrame],
                  cols: Optional[list] = None,
+                 all_cols_except: Optional[list] = None,
                  ax_0: bool = False,
                  index: Optional[list] = None,
-                 all_cols_except: Optional[list] = None):
+                 condition: Optional[list] = None,
+                 finding_value=None,
+                 finding_type: Optional[type] = None):
     """
     Clean a dataframe by removing nulls, specific index, or specific columns.
 
@@ -118,6 +225,11 @@ def clean_values(data_input: Union[str, pd.DataFrame],
         Row indexes to drop.
     all_cols_except : list, optional
         Apply on all columns except these.
+    
+    condition       : [operator, value] → ex: ['>=', 500]
+                      applied only with finding_value or finding_type
+    finding_value   : find and remove rows that have this specific value
+    finding_type    : find and remove rows that have this specific type (ex: str, int)
 
     Returns
     -------
@@ -129,6 +241,9 @@ def clean_values(data_input: Union[str, pd.DataFrame],
         data = data_input
 
     data = data.copy()
+    op_func, cond_val = None, None
+    if condition is not None:
+        op_func, cond_val = _validate_condition(condition)
 
     if cols is not None:
         _validate_cols(cols, data)
@@ -145,6 +260,34 @@ def clean_values(data_input: Union[str, pd.DataFrame],
     if index is not None:
         _validate_index(index, data)
         data.drop(index=index, inplace=True)
+
+    
+
+    elif finding_value is not None:
+        for col in target_cols:
+            if col not in data.columns:
+                continue
+            if op_func and cond_val is not None:
+                # Remove finding_value only where condition is met
+                mask = (data[col] == finding_value) & (data[col].apply(
+                    lambda x: op_func(x, cond_val) if isinstance(x, (int, float)) else False
+                ))
+            else:
+                mask = data[col] == finding_value
+            data = data[~mask]
+ 
+
+    elif finding_type is not None:
+        for col in target_cols:
+            if col not in data.columns:
+                continue
+            if op_func and cond_val is not None:
+                mask = data[col].apply(
+                    lambda x: isinstance(x, finding_type) and op_func(x, cond_val)
+                )
+            else:
+                mask = data[col].apply(lambda x: isinstance(x, finding_type))
+            data = data[~mask]
 
     else:
         if cols is not None or all_cols_except is not None:

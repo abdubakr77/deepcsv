@@ -1,16 +1,15 @@
 import pyarrow
 import pandas as pd
-from .utils import read_any, clean_values, _validate_cols, _validate_index
-from typing import Union, Optional
+from .utils import read_any, clean_values, _validate_cols, _validate_index,_parse_operator,_validate_condition,_save_as
+from typing import Union
 from ast import literal_eval
 from numpy import nan,array
 from os import listdir,makedirs
 from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
-from typing import Union
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame] , save_file_extension=str) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
@@ -58,11 +57,13 @@ def process_file(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame:
             
             data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
             data.drop(ColName,inplace=True,axis=1)
-
+            
+    if save_file_extension.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
+        _save_as(data=data,ext=save_file_extension)
     return data
 
 
-def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here") -> None:
+def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_extension= "parquet") -> None:
     """
     Recursively processes all CSV and XLSX files in a directory,
     converts array strings to NumPy arrays, and saves as Parquet files.
@@ -99,7 +100,7 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                 
                 Sub_Item_Path = join(Curr_Path,item_name)
                 
-                if isfile(Sub_Item_Path) and (Sub_Item_Path.endswith(".csv") or Sub_Item_Path.endswith(".xlsx")):
+                if isfile(Sub_Item_Path) and (Sub_Item_Path.split(".")[-1].strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']):
                     
                     print(f"{Sub_Item_Path} File Is Processing Now...")
 
@@ -111,10 +112,9 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                     if "List" in df_converted.columns[-1]:
                         print(Sub_Item_Path)
                         makedirs(dirname(output),exist_ok=True)
-                        df_converted.to_parquet(output.replace(".csv", ".parquet"))
-
-                        print(f"Done!")
-                        print("-"*50)
+                        _save_as(data=df_converted,
+                                current_dir=output.replace(f".{Sub_Item_Path.split(".")[-1].strip().lower()}", f".{file_extension}"),
+                                ext=file_extension)
 
                 elif isdir(Sub_Item_Path):
 
