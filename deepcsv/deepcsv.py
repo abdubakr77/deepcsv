@@ -9,7 +9,7 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-class DeepCleaner:
+class DeepCSV:
 
     def __init__(self, data_input : Union[str, pd.DataFrame],
                 directory_path : str = None, 
@@ -44,9 +44,9 @@ class DeepCleaner:
 
         Example
         -------
-        >>> from deepcsv import DeepCleaner
-        >>> cleaner = DeepCleaner('file.csv', 'folder', 'parquet', 'saved')
-        >>> df = cleaner().process_file()
+        >>> from deepcsv import DeepCSVer
+        >>> cleaner = DeepCSV('file.csv', 'folder', 'parquet', 'saved')
+        >>> df = cleaner.process_file()
         >>> cleaner.process_all_files()
 
         """
@@ -80,7 +80,7 @@ class DeepCleaner:
         
         data_input = data_another # To Check if input is from process_all_file()
 
-        if data_another == None: # For Classes Class, ft. process_all_file()
+        if data_another is None: # For Classes Class, ft. process_all_file()
             data_input = self.data_input # Its called By User
             
 
@@ -138,6 +138,12 @@ class DeepCleaner:
         Returns
         -------
         None
+
+        Example
+        -------
+        >>> from deepcsv import DeepCSVer
+        >>> cleaner = DeepCSV(directory_path, output_dir)
+        >>> cleaner.process_all_file
 
         """
 

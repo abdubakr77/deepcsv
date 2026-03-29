@@ -57,9 +57,9 @@ pip install deepcsv
 ## Initialization
 
 ```python
-from deepcsv import DeepCleaner
+from deepcsv import DeepCSV
 
-cleaner = DeepCleaner(parameters)
+cleaner = DeepCSV(parameters)
 ```
 
 ---
@@ -86,9 +86,9 @@ cleaner = DeepCleaner(parameters)
 Reads a file or DataFrame, converts array-like strings to NumPy arrays, fixes mixed-type columns, and optionally saves the result.
 
 ```python
-from deepcsv import DeepCleaner
+from deepcsv import DeepCSV
 
-cleaner = DeepCleaner(data_input="path_to_file", save_file_extension="csv")
+cleaner = DeepCSV(data_input="path_to_file", save_file_extension="csv")
 
 df = cleaner.process_file()
 ```
@@ -103,9 +103,9 @@ df = cleaner.process_file()
 Recursively processes all supported files in a directory and saves cleaned outputs.
 
 ```python
-from deepcsv import DeepCleaner
+from deepcsv import DeepCSV
 
-cleaner = DeepCleaner(directory_path="folder_path", output_dir="cleaned_files")
+cleaner = DeepCSV(directory_path="folder_path", output_dir="cleaned_files")
 
 cleaner.process_all_files()
 ```
