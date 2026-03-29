@@ -21,5 +21,6 @@
 
 - `process_file()` — Added `save_file_extension` parameter. Now supports saving the processed DataFrame in any format after conversion, not just returning it
 - `process_all_files()` — Added `file_extension` parameter. Now supports saving converted files in any format instead of always saving as Parquet. Also expanded supported input formats beyond `.csv` and `.xlsx` to cover all formats supported by `read_any()`
+- `DeepCleaner()` - Changing whole code flow to OOPS
 
 ---
