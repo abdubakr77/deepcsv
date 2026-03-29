@@ -44,7 +44,7 @@ class DeepCSV:
 
         Example
         -------
-        >>> from deepcsv import DeepCSVer
+        >>> from deepcsv import DeepCSV
         >>> cleaner = DeepCSV('file.csv', 'folder', 'parquet', 'saved')
         >>> df = cleaner.process_file()
         >>> cleaner.process_all_files()
