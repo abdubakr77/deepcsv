@@ -110,8 +110,8 @@ def _save_as(data: pd.DataFrame, current_dir = str(Path.cwd()), ext= str) -> Non
 
     Examples
     --------
-    >>> save_as(df, "data/myfile", ".parquet")
-    >>> save_as(df, "data/myfile", ".csv")
+    >>> _save_as(df, "data/myfile", ".parquet")
+    >>> _save_as(df, "data/myfile", ".csv")
     """
     ext = ext.strip().lower()
     if not ext.startswith("."):
@@ -142,6 +142,14 @@ def _save_as(data: pd.DataFrame, current_dir = str(Path.cwd()), ext= str) -> Non
     print(f"Saved: {full_path}")
     print("-"*50)
 
+
+def _val_dtype(x,dtype):
+    if dtype == str:
+        return str(x)
+    elif dtype == float:
+        return float(x)
+    else:
+        return bool(x)
 
 # ──────────────────────────────────────────────
 #               PUBLIC FUNCTIONS
@@ -300,3 +308,39 @@ def clean_values(data_input: Union[str, pd.DataFrame],
             data.dropna(axis=1, inplace=True)
 
     return data
+
+
+
+def auto_fix(data_input: Union[str, pd.DataFrame]):
+    try:
+        df = read_any(data_input)
+    except Exception:
+        df = data_input
+
+
+    for ColName in df.columns:
+        if len(df[ColName].apply(type).unique()) == 2:
+            print(f"Found a column ({ColName}) Have mixed DTypes!")
+            print(f"This Col Have These DTypes: {df[ColName].apply(type).unique()}\nNOW TRYING TO FIX!")
+            
+            dtype_dict = dict(df[ColName].apply(type).value_counts().to_dict())
+            dtype_values_list = [dtype_value for dtype_value in dtype_dict.values()]
+            dtype = None
+            try:
+                for dtype_name in dtype_dict.keys():
+                    if dtype_dict[dtype_name] == max(dtype_values_list):
+                        dtype = dtype_name
+
+            
+                df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
+
+            except: 
+                for dtype_name in dtype_dict.keys():
+                    if dtype_dict[dtype_name] == min(dtype_values_list):
+                        dtype = dtype_name
+
+            
+                df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
+            print("Done!")
+            print("—"*35)
+    return df

@@ -9,14 +9,18 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame] , save_file_extension=str) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame] , file_format= str, to_list = False) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
     Parameters
     ----------
-    data_input : str or pd.DataFrame
-        Path to the CSV/XLSX file or an existing DataFrame.
+    data_input:  str or pd.DataFrame
+                 Path to the CSV/XLSX file or an existing DataFrame.
+    file_format: str
+                 Saves a DataFrame to a file with the specified format.
+    to_list:     False -> (Array) is better
+                 True  -> it will convert to list 
  
     Returns
     -------
@@ -28,6 +32,8 @@ def process_file(data_input: Union[str, pd.DataFrame] , save_file_extension=str)
     --------
     >>> df = process_file('path/to/file.csv')
     >>> df = process_file(my_dataframe)
+    >>> df = process_file(my_dataframe , save_format="parquet")
+    >>> df = process_file(my_dataframe , save_format="parquet", to_list = True)
     """
     
     try:
@@ -54,16 +60,20 @@ def process_file(data_input: Union[str, pd.DataFrame] , save_file_extension=str)
                 print("System : Done!")
 
         elif isinstance(First_Value , str) and First_Value.strip().startswith("["):
-            
-            data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
+            if to_list:
+                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+            else:
+                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
             data.drop(ColName,inplace=True,axis=1)
             
-    if save_file_extension.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
-        _save_as(data=data,ext=save_file_extension)
+    if file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
+        _save_as(data=data,ext=file_format)
+
+
     return data
 
 
-def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_extension= "parquet") -> None:
+def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",to_list = False) -> None:
     """
     Recursively processes all CSV and XLSX files in a directory,
     converts array strings to NumPy arrays, and saves as Parquet files.
@@ -74,6 +84,8 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
         Root directory path to search for CSV/XLSX files.
     output_dir : str, default 'All CSV Files is Converted Here'
         Folder name where converted files will be saved.
+    file_format: str
+        Saves a DataFrame to a file with the specified format for every file.
  
     Returns
     -------
@@ -83,6 +95,7 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
     --------
     >>> process_all_files('/path/to/directory')
     >>> process_all_files('/path/to/directory', output_dir="Converted Files")
+    >>> process_all_files('/path/to/directory', output_dir="Converted Files", file_format="tsv")
     """
 
     base_output = join(directory_path, output_dir)
@@ -113,8 +126,8 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                         print(Sub_Item_Path)
                         makedirs(dirname(output),exist_ok=True)
                         _save_as(data=df_converted,
-                                current_dir=output.replace(f".{Sub_Item_Path.split(".")[-1].strip().lower()}", f".{file_extension}"),
-                                ext=file_extension)
+                                current_dir=output.replace(f".{Sub_Item_Path.split(".")[-1].strip().lower()}", f".{file_format}"),
+                                ext=file_format,to_list=to_list)
 
                 elif isdir(Sub_Item_Path):
 

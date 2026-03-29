@@ -14,6 +14,7 @@ Your column has numbers — it secretly has 3 different data types.
 You have 200 CSV files across 40 folders — and you process them one by one.
 You load a file and spend 20 minutes just picking the right reader.
 You have nulls scattered everywhere with no clean way to handle them.
+You have alot of mixed DTypes columns no way to handle one by one
 
 This is the silent killer of every data pipeline.
 
@@ -29,7 +30,7 @@ This is the silent killer of every data pipeline.
 - Catches mixed-type columns and fixes them automatically
 - Saves everything in any format you choose — not just Parquet
 - Reads any file format with one function — no more picking the right reader
-- Cleans nulls with full control over columns, rows, indexes, values, and types
+- Cleans nulls with full control over columns, rows, indexes, values, and Fix Mixed DTypes
 
 ---
 
@@ -43,7 +44,7 @@ pip install deepcsv
 
 ## Functions
 
-### `process_file(data_input, save_file_extension= str)`
+### `process_file(data_input, file_format= str, to_list=False)`
 
 Reads a file or DataFrame, converts array-like strings to NumPy arrays, fixes mixed-type columns, and optionally saves the result in any format you choose.
 
@@ -54,17 +55,20 @@ import deepcsv
 df = deepcsv.process_file('path/to/file.csv')
 
 # Process and save as parquet
-df = deepcsv.process_file('path/to/file.csv', save_file_extension='parquet')
+df = deepcsv.process_file('path/to/file.csv', file_format='parquet')
 
 # Process and save as Excel
-df = deepcsv.process_file('path/to/file.csv', save_file_extension='xlsx')
+df = deepcsv.process_file('path/to/file.csv', file_format='xlsx')
+
+# Process and convert it to Real Python List
+df = deepcsv.process_file('path/to/file.csv', to_list=True)
 ```
 
-**Supported save formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
+**Supported file formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
 
 ---
 
-### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_extension="parquet")`
+### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_format="parquet", to_list=False)`
 
 Walks through all folders and subfolders, applies `process_file` on every supported file, and saves results in the format you choose.
 
@@ -85,7 +89,7 @@ deepcsv.process_all_files('path/to/folder', file_extension='csv')
 
 ---
 
-### `read_any(file_path)` ✨
+### `read_any(file_path)` 
 
 Reads any supported file format and returns a pandas DataFrame — one function for everything.
 
@@ -102,7 +106,7 @@ df = read_any('local.db')
 
 ---
 
-### `clean_values(data_input, ...)` ✨
+### `clean_values(data_input, ...)` 
 
 Cleans a DataFrame by removing nulls, specific values, specific types, or rows by index — with full control over which columns to target and optional conditions.
 
@@ -146,6 +150,17 @@ df = clean_values('data.csv', all_cols_except=['id', 'name'])
 
 ---
 
+### `auto_fix(data_input)` 
+
+Automatic data type correction in DataFrames for solving mixed Dtypes with logg to track changes made to columns.
+
+```python
+from deepcsv import auto_fix
+
+df = auto_fix('My_Data')
+```
+---
+
 ## Function Signatures
 
 ```python
@@ -153,6 +168,7 @@ process_file(data_input: Union[str, pd.DataFrame], save_file_extension: str = No
 process_all_files(directory_path: str, output_dir: str = "All CSV Files is Converted Here", file_extension: str = "parquet") -> None
 read_any(file_path: str) -> pd.DataFrame
 clean_values(data_input, cols=None, ax_0=False, index=None, condition=None, all_cols_except=None, finding_value=None, finding_type=None) -> pd.DataFrame
+auto_fix(data_input: Union[str, pd.DataFrame])
 ```
 
 ---
