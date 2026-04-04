@@ -312,6 +312,43 @@ def clean_values(data_input: Union[str, pd.DataFrame],
 
 
 def auto_fix(data_input: Union[str, pd.DataFrame]):
+    """
+    Automatically detects and fixes columns with mixed data types in a DataFrame.
+
+    This function scans each column for mixed data types (columns containing exactly
+    2 different Python types) and attempts to convert all values to the most common
+    type. If the primary conversion fails, it falls back to the secondary type.
+
+    Parameters
+    ----------
+    data_input : str or pd.DataFrame
+        File path to read from or an existing DataFrame to process.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with mixed-type columns automatically converted to consistent types.
+
+    Notes
+    -----
+    - Only processes columns with exactly 2 different data types
+    - Attempts conversion to the most frequent type first
+    - Falls back to the less frequent type if primary conversion fails
+    - Prints progress messages for each column being processed
+    - Supported target types: str, float, bool
+
+    Examples
+    --------
+    >>> df = auto_fix('data/mixed_types.csv')
+    Found a column (price) Have mixed DTypes!
+    This Col Have These DTypes: [<class 'str'>, <class 'float'>]
+    NOW TRYING TO FIX!
+    Done!
+    -----------------------------------
+
+    >>> df = auto_fix(my_dataframe)
+    """
+    
     try:
         df = read_any(data_input)
     except Exception:
