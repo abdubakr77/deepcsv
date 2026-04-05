@@ -246,5 +246,3 @@ auto_fix(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame
 📦 [PyPI](https://pypi.org/project/deepcsv) · 💻 [GitHub](https://github.com/abdubakr77/deepcsv)
 
 **By: Abdullah Bakr**
-
-</div>
