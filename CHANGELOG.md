@@ -4,18 +4,13 @@
 
 ### Added
 
-- `process_file` — Added Doc & Examples for new params in function
-- `process_all_files` — Added Doc & Examples for new params in function
-- `process_file` & `process_all_file` — Added New parameter `to_list` to be real python list if you don't need array
-- Added `auto_fix` function for automatic data type correction in DataFrames for mixed Dtypes.
-- Added logg to `auto_fix` to track changes made to columns.
-- Added Documentation for `auto_fix` function to understand more about function.
+- `process_file()` — Converting any columns have Numbers as strings to Numerical Values (Float)
+- `save_as` — Added function to save dataset file
 
 ---
 
-### Changed
+### Fixes
 
-- `process_file()` — Changed `save_file_extension` parameter to `file_format`
-- `process_all_files()` — Changed `file_extension` parameter to `file_format`
+- `process_file()` — Fixed some bugs in `file_format` parameter
 
 ---

@@ -1,6 +1,6 @@
 import pyarrow
 import pandas as pd
-from .utils import read_any, clean_values, _validate_cols, _validate_index,_parse_operator,_validate_condition,_save_as
+from deepcsv import read_any, save_as
 from typing import Union
 from ast import literal_eval
 from numpy import nan,array
@@ -9,7 +9,7 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame] , file_format= str, to_list = False) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame] , file_format: None, to_list = False) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
@@ -58,6 +58,19 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= str, to_lis
  
                 data[ColName] = pd.to_numeric(data[ColName], errors='coerce')
                 print("System : Done!")
+                print("-" * 50)
+
+
+
+        elif len(data[data[ColName].apply(str).str.isnumeric()]) >= len(data[data[ColName].apply(str).str.isnumeric() == False]):
+
+            print(f"WARNING:\nThis Dataset Name ({data_input.split('\\')[-1]}) Found numbers as {len(data[ColName].apply(type).unique())} in a column called ({ColName})\nPath : {data_input}")
+
+            print(f"System : Trying to fix and converting the column as a Numerical Values...")
+            data[ColName] = pd.to_numeric(data[ColName], errors='coerce')
+            print("System : Done!")
+            print("-" * 50)
+
 
         elif isinstance(First_Value , str) and First_Value.strip().startswith("["):
             if to_list:
@@ -66,8 +79,8 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= str, to_lis
                 data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
             data.drop(ColName,inplace=True,axis=1)
             
-    if file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
-        _save_as(data=data,ext=file_format)
+    if file_format != None and file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
+        save_as(data=data,ext=file_format)
 
 
     return data
@@ -125,7 +138,7 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                     if "List" in df_converted.columns[-1]:
                         print(Sub_Item_Path)
                         makedirs(dirname(output),exist_ok=True)
-                        _save_as(data=df_converted,
+                        save_as(data=df_converted,
                                 current_dir=output.replace(f".{Sub_Item_Path.split(".")[-1].strip().lower()}", f".{file_format}"),
                                 ext=file_format,to_list=to_list)
 

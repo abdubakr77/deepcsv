@@ -1,4 +1,11 @@
 # deepcsv
+
+![PyPI Downloads](https://img.shields.io/pypi/dm/deepcsv?color=blue&label=Downloads)
+![PyPI Version](https://img.shields.io/pypi/v/deepcsv?color=green&label=Version)
+![Python](https://img.shields.io/pypi/pyversions/deepcsv?color=yellow&label=Python)
+![License](https://img.shields.io/github/license/abdubakr77/deepcsv?color=orange)
+![GitHub Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?color=yellow)
+
 > *"You think you saved a list. You open it tomorrow — and it's a string."*
 
 `deepcsv` was built to solve exactly this problem.
