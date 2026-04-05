@@ -273,7 +273,7 @@ def auto_fix(data_input: Union[str, pd.DataFrame]):
 
     Notes
     -----
-    - Only processes columns with exactly 2 different data types
+    - Only processes columns with exactly 2 different data types and process Numbers strings to float
     - Attempts conversion to the most frequent type first
     - Falls back to the less frequent type if primary conversion fails
     - Prints progress messages for each column being processed
@@ -295,7 +295,7 @@ def auto_fix(data_input: Union[str, pd.DataFrame]):
         df = read_any(data_input)
     except Exception:
         df = data_input
-
+        
 
     for ColName in df.columns:
         if len(df[ColName].apply(type).unique()) == 2:
@@ -320,8 +320,17 @@ def auto_fix(data_input: Union[str, pd.DataFrame]):
 
             
                 df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
-            print("Done!")
-            print("—"*35)
+
+        if len(df[df[ColName].apply(str).str.isnumeric()]) >= len(df[df[ColName].apply(str).str.isnumeric() == False]):
+
+            print(f"WARNING:\nFound numbers as {len(df[ColName].apply(type).unique())} in a column called ({ColName})")
+
+            print(f"System : Trying to fix and converting the column as a Numerical Values...")
+            df[ColName] = pd.to_numeric(df[ColName], errors='coerce')
+            
+            
+        print("Done!")
+        print("—"*35)
     return df
 
 
@@ -353,8 +362,8 @@ def save_as(data: pd.DataFrame, current_dir = str(Path.cwd()), ext= str) -> None
 
     Examples
     --------
-    >>> _save_as(df, "data/myfile", ".parquet")
-    >>> _save_as(df, "data/myfile", ".csv")
+    >>> save_as(df, "data/myfile", "parquet")
+    >>> save_as(df, "data/myfile", "csv")
     """
     ext = ext.strip().lower()
     if not ext.startswith("."):

@@ -5,7 +5,7 @@
 <div align="center">
 
 [![Downloads](https://img.shields.io/pypi/dm/deepcsv?style=flat-square&color=blue&label=Downloads)](https://pypi.org/project/deepcsv)
-[![Version](https://img.shields.io/pypi/v/deepcsv?style=flat-square&color=brightgreen&label=Version&cacheSeconds=0)](https://pypi.org/project/deepcsv)
+[![Version](https://img.shields.io/pypi/v/deepcsv?style=flat-square&color=brightgreen&label=Version)](https://pypi.org/project/deepcsv)
 [![Python](https://img.shields.io/pypi/pyversions/deepcsv?style=flat-square&color=yellow&label=Python)](https://pypi.org/project/deepcsv)
 [![License](https://img.shields.io/github/license/abdubakr77/deepcsv?style=flat-square&color=orange)](https://github.com/abdubakr77/deepcsv)
 [![Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?style=flat-square&color=yellow)](https://github.com/abdubakr77/deepcsv)
@@ -77,7 +77,7 @@ pip install deepcsv
 | `process_all_files()` | Batch processes entire folder trees |
 | `read_any()` | Reads any file format automatically |
 | `clean_values()` | Cleans nulls, values, types with full control |
-| `auto_fix()` | Detects and fixes mixed data types automatically |
+| `auto_fix()` | Detects and fixes mixed data types automatically and MORE |
 
 </div>
 

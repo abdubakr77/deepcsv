@@ -1,6 +1,7 @@
 import pyarrow
 import pandas as pd
-from .utils import read_any, save_as 
+from .utils import read_any, save_as
+from deepcsv import utils
 from typing import Union
 from ast import literal_eval
 from numpy import nan,array
@@ -9,7 +10,7 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, to_list = False) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_fix = False , to_list = False) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
@@ -21,6 +22,9 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, to_li
                  Saves a DataFrame to a file with the specified format.
     to_list:     False -> (Array) is better
                  True  -> it will convert to list 
+    auto_fix:    False -> (Default)
+                 True  -> It will detects and fixes columns
+                 Apply auto_fix function with processing in one time
  
     Returns
     -------
@@ -41,38 +45,18 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, to_li
     except:
         data = data_input
 
+    if auto_fix:
+        print("Now Trying to detects and fixes columns with mixed data types And process Numbers strings to float in a DataFrame.")
+        data = utils.auto_fix(data_input=data)
+
+    
     for ColName in data.columns:
         
         First_Value = data[ColName].iloc[0]
 
-        if len(data[ColName].apply(type).unique()) >= 2:
 
-
-            sample = (data[data[ColName].apply(type) == str][ColName].head(2)).values
-
-            if len(sample) > 0 and isinstance(sample[0],str) and sample[0][0].strip().isnumeric():
-
-                print(f"WARNING:\nThis Dataset Name ({data_input.split('\\')[-1]}) Found {len(data[ColName].apply(type).unique())} Mixed DataType in a column called ({ColName})\nPath : {data_input}")
-                print(f"System : This column have These types: {data[ColName].apply(type).unique()}")
-                print(f"System : Trying to fix the column as a Float to be have only one datatype...")
- 
-                data[ColName] = pd.to_numeric(data[ColName], errors='coerce')
-                print("System : Done!")
-                print("-" * 50)
-
-
-
-        elif len(data[data[ColName].apply(str).str.isnumeric()]) >= len(data[data[ColName].apply(str).str.isnumeric() == False]):
-
-            print(f"WARNING:\nThis Dataset Name ({data_input.split('\\')[-1]}) Found numbers as {len(data[ColName].apply(type).unique())} in a column called ({ColName})\nPath : {data_input}")
-
-            print(f"System : Trying to fix and converting the column as a Numerical Values...")
-            data[ColName] = pd.to_numeric(data[ColName], errors='coerce')
-            print("System : Done!")
-            print("-" * 50)
-
-
-        elif isinstance(First_Value , str) and First_Value.strip().startswith("["):
+        if isinstance(First_Value , str) and First_Value.strip().startswith("["):
+            print("Now Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
             if to_list:
                 data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
             else:
@@ -86,7 +70,7 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, to_li
     return data
 
 
-def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",to_list = False) -> None:
+def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix = False,to_list = False) -> None:
     """
     Recursively processes all CSV and XLSX files in a directory,
     converts array strings to NumPy arrays, and saves as Parquet files.
@@ -99,7 +83,11 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
         Folder name where converted files will be saved.
     file_format: str
         Saves a DataFrame to a file with the specified format for every file.
- 
+    auto_fix:    False -> (Default)
+        Apply auto_fix function with processing in one time
+    to_list:     False -> (Array) is better
+                 True  -> it will convert to list 
+
     Returns
     -------
     None
