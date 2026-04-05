@@ -9,7 +9,7 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame] , file_format: None, to_list = False) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, to_list = False) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
