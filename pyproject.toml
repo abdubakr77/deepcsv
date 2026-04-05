@@ -10,15 +10,24 @@ authors = [
 ]
 description = "Automatically processes data files in directories, converts array-like strings to NumPy arrays, detects and fixes data type issues, and saves results as optimized Parquet files and MORE!"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.7"
 keywords = ["data-processing", "pandas", "numpy", "etl", "data-cleaning", "file-conversion", "automation", "parquet", "bulk-conversion"]
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Information Analysis",
-    "License :: OSI Approved :: MIT License",
+    "Topic :: Utilities",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "pandas",
