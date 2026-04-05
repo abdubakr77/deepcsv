@@ -1,47 +1,61 @@
+<div align="center">
+
 # deepcsv
 
-![PyPI Downloads](https://img.shields.io/pypi/dm/deepcsv?color=blue&label=Downloads)
-![PyPI Version](https://img.shields.io/pypi/v/deepcsv?color=green&label=Version)
-![Python](https://img.shields.io/pypi/pyversions/deepcsv?color=yellow&label=Python)
-![License](https://img.shields.io/github/license/abdubakr77/deepcsv?color=orange)
-![GitHub Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?color=yellow)
+<div align="center">
+
+[![Downloads](https://img.shields.io/pypi/dm/deepcsv?style=flat-square&color=blue&label=Downloads)](https://pypi.org/project/deepcsv)
+[![Version](https://img.shields.io/pypi/v/deepcsv?style=flat-square&color=brightgreen&label=Version)](https://pypi.org/project/deepcsv)
+[![Python](https://img.shields.io/pypi/pyversions/deepcsv?style=flat-square&color=yellow&label=Python)](https://pypi.org/project/deepcsv)
+[![License](https://img.shields.io/github/license/abdubakr77/deepcsv?style=flat-square&color=orange)](https://github.com/abdubakr77/deepcsv)
+[![Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?style=flat-square&color=yellow)](https://github.com/abdubakr77/deepcsv)
+
+</div>
 
 > *"You think you saved a list. You open it tomorrow — and it's a string."*
 
 `deepcsv` was built to solve exactly this problem.
 
+</div>
+
 ---
 
 ## The Problem
 
+<div align="center">
+  <img src="https://i.postimg.cc/Sx8sRNmW/Gemini-Generated-Image-ipx181ipx181ipx1.png" style="width:80%;">
+</div>
+
 Your CSV files are lying to you.
 
-You save a list — you open it tomorrow and it's a string.
-Your column has numbers — it secretly has 3 different data types.
-You have 200 CSV files across 40 folders — and you process them one by one.
-You load a file and spend 20 minutes just picking the right reader.
-You have nulls scattered everywhere with no clean way to handle them.
-You have alot of mixed DTypes columns no way to handle one by one
+- You save a list — you open it tomorrow and it's a **string**
+- Your column has numbers — it secretly has **3 different data types**
+- You have 200 CSV files across 40 folders — and you process them **one by one**
+- You load a file and spend 20 minutes just **picking the right reader**
+- You have nulls scattered everywhere with **no clean way to handle them**
 
 This is the silent killer of every data pipeline.
 
 ---
 
-## The Solution
+## The Solution ✅
 
-`deepcsv` handles all of this in one import.
+<div align="center">
+  <img src="https://i.postimg.cc/vZQYY72N/Gemini-Generated-Image-uekrheuekrheuekr.png" style="width:80%;">
+</div>
+
+`deepcsv` handles all of this in **one import.**
 
 - Walks through every folder and subfolder automatically
-- Finds every CSV and XLSX file
 - Detects columns storing lists as strings and converts them to real NumPy arrays
 - Catches mixed-type columns and fixes them automatically
 - Saves everything in any format you choose — not just Parquet
 - Reads any file format with one function — no more picking the right reader
-- Cleans nulls with full control over columns, rows, indexes, values, and Fix Mixed DTypes
+- Cleans nulls with full control over columns, rows, indexes, values, and types
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ```bash
 pip install deepcsv
@@ -49,11 +63,31 @@ pip install deepcsv
 
 ---
 
-## Functions
+## 🗺️ Functions Overview
 
-### `process_file(data_input, file_format= str, to_list=False)`
+<div align="center">
+  <img src="https://i.postimg.cc/HxJsGpvQ/Gemini-Generated-Image-ttk3ohttk3ohttk3.png" style="width:80%;">
+</div>
 
-Reads a file or DataFrame, converts array-like strings to NumPy arrays, fixes mixed-type columns, and optionally saves the result in any format you choose.
+<div align="center">
+
+| Function | What it does |
+|---|---|
+| `process_file()` | Converts string lists → NumPy arrays, fixes mixed types |
+| `process_all_files()` | Batch processes entire folder trees |
+| `read_any()` | Reads any file format automatically |
+| `clean_values()` | Cleans nulls, values, types with full control |
+| `auto_fix()` | Detects and fixes mixed data types automatically |
+
+</div>
+
+---
+
+## 📖 Functions
+
+### `process_file(data_input, file_format=None, to_list=False)`
+
+Reads a file or DataFrame, converts array-like strings to NumPy arrays, fixes mixed-type columns, and optionally saves the result.
 
 ```python
 import deepcsv
@@ -64,20 +98,17 @@ df = deepcsv.process_file('path/to/file.csv')
 # Process and save as parquet
 df = deepcsv.process_file('path/to/file.csv', file_format='parquet')
 
-# Process and save as Excel
-df = deepcsv.process_file('path/to/file.csv', file_format='xlsx')
-
-# Process and convert it to Real Python List
+# Process and convert to real Python lists
 df = deepcsv.process_file('path/to/file.csv', to_list=True)
 ```
 
-**Supported file formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
+**Supported save formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
 
 ---
 
-### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_format="parquet", to_list=False)`
+### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_format="parquet")`
 
-Walks through all folders and subfolders, applies `process_file` on every supported file, and saves results in the format you choose.
+Walks through all folders and subfolders, applies `process_file` on every supported file, and saves results.
 
 ```python
 import deepcsv
@@ -88,15 +119,15 @@ deepcsv.process_all_files('path/to/folder')
 # Custom output folder
 deepcsv.process_all_files('path/to/folder', output_dir='Converted Files')
 
-# Save as CSV instead
-deepcsv.process_all_files('path/to/folder', file_extension='csv')
+# Save as CSV
+deepcsv.process_all_files('path/to/folder', file_format='csv')
 ```
 
 **Supported input formats:** `.csv` `.txt` `.tsv` `.xls` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.db` `.sqlite`
 
 ---
 
-### `read_any(file_path)` 
+### `read_any(file_path)`
 
 Reads any supported file format and returns a pandas DataFrame — one function for everything.
 
@@ -113,9 +144,9 @@ df = read_any('local.db')
 
 ---
 
-### `clean_values(data_input, ...)` 
+### `clean_values(data_input, ...)`
 
-Cleans a DataFrame by removing nulls, specific values, specific types, or rows by index — with full control over which columns to target and optional conditions.
+Cleans a DataFrame by removing nulls, specific values, specific types, or rows by index.
 
 ```python
 from deepcsv import clean_values
@@ -153,39 +184,41 @@ df = clean_values('data.csv', all_cols_except=['id', 'name'])
 | `finding_value` | `any` | `None` | Find and remove rows containing this value |
 | `finding_type` | `type` | `None` | Find and remove rows matching this Python type |
 
-**Supported condition operators:** `>=` `<=` `>` `<` `==` `!=`
+**Supported operators:** `>=` `<=` `>` `<` `==` `!=`
 
 ---
 
-### `auto_fix(data_input)` 
+### `auto_fix(data_input)`
 
-Automatic data type correction in DataFrames for solving mixed Dtypes with logg to track changes made to columns.
+Automatically detects columns with mixed data types and fixes them by converting all values to the most dominant type. Logs every change made.
 
 ```python
 from deepcsv import auto_fix
 
-df = auto_fix('My_Data')
+df = auto_fix('data.csv')
+df = auto_fix(my_dataframe)
 ```
+
 ---
 
-## Function Signatures
+## 📋 Function Signatures
 
 ```python
-process_file(data_input: Union[str, pd.DataFrame], save_file_extension: str = None) -> pd.DataFrame
-process_all_files(directory_path: str, output_dir: str = "All CSV Files is Converted Here", file_extension: str = "parquet") -> None
+process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, to_list: bool = False) -> pd.DataFrame
+process_all_files(directory_path: str, output_dir: str = "All CSV Files is Converted Here", file_format: str = "parquet") -> None
 read_any(file_path: str) -> pd.DataFrame
 clean_values(data_input, cols=None, ax_0=False, index=None, condition=None, all_cols_except=None, finding_value=None, finding_type=None) -> pd.DataFrame
-auto_fix(data_input: Union[str, pd.DataFrame])
+auto_fix(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame
 ```
 
 ---
 
-## Key Features
+## ✨ Key Features
 
 - String list → real NumPy array conversion (fast, no manual parsing)
-- Mixed-type column detection and auto-fix
+- Mixed-type column detection and auto-fix with logging
 - Save in any format — CSV, Excel, JSON, Parquet, Feather, and more
-- One universal file reader for 10+ formats
+- One universal file reader supporting 10+ formats
 - Flexible null cleaning by column, row, index, value, or type
 - Conditional filtering with 6 operators
 - Recursive directory traversal
@@ -193,14 +226,14 @@ auto_fix(data_input: Union[str, pd.DataFrame])
 
 ---
 
-## Notes
+## 📝 Notes
 
 - Requires `pyarrow` for Parquet and Feather support
 - Only saves files in `process_all_files` if the DataFrame contains converted array columns
 
 ---
 
-## Requirements
+## 📦 Requirements
 
 - Python >= 3.7
 - pandas
@@ -208,4 +241,10 @@ auto_fix(data_input: Union[str, pd.DataFrame])
 
 ---
 
+<div align="center">
+
+📦 [PyPI](https://pypi.org/project/deepcsv) · 💻 [GitHub](https://github.com/abdubakr77/deepcsv)
+
 **By: Abdullah Bakr**
+
+</div>
