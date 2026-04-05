@@ -2,8 +2,8 @@
 
 ---
 
-### Changes
+### Fixes
 
-- Updated README File
+- Fixed import functions
 
 ---
