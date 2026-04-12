@@ -10,7 +10,7 @@ from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False, col_name:  Union[str, list] = "all") -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
@@ -85,32 +85,63 @@ def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, 
 
     if auto_fix:
         print("Now Trying to detects and fixes columns with mixed data types And process Numbers strings to float in a DataFrame.")
-        data = utils.auto_fix(data_input=data)
+        data = utils.auto_fix(data_input=data,col_name=col_name)
 
-    
-    for ColName in data.columns:
+    if col_name == data.columns or col_name.strip() in data.columns:
         
-        First_Value = data[ColName].iloc[0]
+            ColName=col_name
+            First_Value = data[ColName].iloc[0]
 
 
-        if isinstance(First_Value , str) and First_Value.strip().startswith("["):
-            print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
-            if to_list:
-                if deep_check:
-                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+            if isinstance(First_Value , str) and (First_Value.strip().startswith("[") or First_Value.strip().startswith("{")):
+                print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
+                if to_list:
+                    if deep_check:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                    else:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+
                 else:
-                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+                    
+                    if deep_check:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                    else:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
 
-            else:
-                
-                if deep_check:
-                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                data.drop(ColName,inplace=True,axis=1)
+                print("Done!")
+                print("-"*50)
+
+
+
+
+    elif col_name == "all":
+        for ColName in data.columns:
+            
+            First_Value = data[ColName].iloc[0]
+
+
+            if isinstance(First_Value , str) and (First_Value.strip().startswith("[") or First_Value.strip().startswith("{")):
+                print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
+                if to_list:
+                    if deep_check:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                    else:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+
                 else:
-                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
+                    
+                    if deep_check:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                    else:
+                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
 
-            data.drop(ColName,inplace=True,axis=1)
-            print("Done!")
-            print("-"*50)
+                data.drop(ColName,inplace=True,axis=1)
+                print("Done!")
+                print("-"*50)
+
+    else:
+        raise NameError and ValueError("There is Input Column Name maybe not found in your Data Columns, Please Check the column name!")
             
     if file_format != None and file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
         save_as(data=data,ext=file_format)
