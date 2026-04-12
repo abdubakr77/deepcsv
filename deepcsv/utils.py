@@ -320,6 +320,8 @@ def auto_fix(data_input: Union[str, pd.DataFrame]):
 
             
                 df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
+            print("Done!")
+            print("—"*35)
 
         if len(df[df[ColName].apply(str).str.isnumeric()]) >= len(df[df[ColName].apply(str).str.isnumeric() == False]):
 
@@ -329,8 +331,8 @@ def auto_fix(data_input: Union[str, pd.DataFrame]):
             df[ColName] = pd.to_numeric(df[ColName], errors='coerce')
             
             
-        print("Done!")
-        print("—"*35)
+            print("Done!")
+            print("—"*35)
     return df
 
 

@@ -4,13 +4,13 @@ from .utils import read_any, save_as
 from deepcsv import utils
 from typing import Union
 from ast import literal_eval
-from numpy import nan,array
+from numpy import nan,array,ndarray
 from os import listdir,makedirs
 from os.path import join,relpath,dirname,isfile,isdir
 from warnings import filterwarnings
 filterwarnings("ignore")
 
-def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_fix = False , to_list = False) -> pd.DataFrame:
+def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False) -> pd.DataFrame:
     """
     Parses string representations of lists in DataFrame columns to actual NumPy arrays.
  
@@ -18,13 +18,21 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_
     ----------
     data_input:  str or pd.DataFrame
                  Path to the CSV/XLSX file or an existing DataFrame.
+
     file_format: str
                  Saves a DataFrame to a file with the specified format.
+
     to_list:     False -> (Array) is better
                  True  -> it will convert to list 
+
     auto_fix:    False -> (Default)
                  True  -> It will detects and fixes columns
                  Apply auto_fix function with processing in one time
+
+    deep_check:  bool, optional (default=False)
+                 If True, recursively parses nested lists and dicts
+                 stored as strings inside arrays.
+                 May be slower on large datasets.
  
     Returns
     -------
@@ -38,7 +46,37 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_
     >>> df = process_file(my_dataframe)
     >>> df = process_file(my_dataframe , save_format="parquet")
     >>> df = process_file(my_dataframe , save_format="parquet", to_list = True)
+    >>> df = process_file(my_dataframe , deep_check = True)
     """
+    
+    def _parse_value_(x, to_list=False):
+        """Recursively parse a single value - handles str, list, dict, numpy array."""
+
+        print("⚠️  Deep Check is enabled — recursively parsing nested lists/dicts. This may take longer on large datasets.")
+
+        # String that looks like a list or dict
+        if isinstance(x, str):
+            stripped = x.strip()
+            if stripped.startswith("[") or stripped.startswith("{"):
+                try:
+                    parsed = literal_eval(stripped)
+                    return _parse_value_(parsed, to_list=to_list)  # recurse on result
+                except (ValueError, SyntaxError):
+                    return x  # return as-is if can't parse
+            return x  # plain string, leave it
+        
+        # List or numpy array -> go deeper into each element
+        elif isinstance(x, (list, ndarray)):
+            parsed_items = [_parse_value_(item, to_list=to_list) for item in x]
+            return parsed_items if to_list else array(parsed_items, dtype=object)
+        
+        # Dict -> go deeper into each value
+        elif isinstance(x, dict):
+            return {k: _parse_value_(v, to_list=to_list) for k, v in x.items()}
+        
+        # Numbers, None, etc. -> return as-is
+        return x
+            
     
     try:
         data = read_any(data_input)
@@ -56,12 +94,23 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_
 
 
         if isinstance(First_Value , str) and First_Value.strip().startswith("["):
-            print("Now Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
+            print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
             if to_list:
-                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+                if deep_check:
+                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                else:
+                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+
             else:
-                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
+                
+                if deep_check:
+                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+                else:
+                    data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
+
             data.drop(ColName,inplace=True,axis=1)
+            print("Done!")
+            print("-"*50)
             
     if file_format != None and file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
         save_as(data=data,ext=file_format)
@@ -70,7 +119,7 @@ def process_file(data_input: Union[str, pd.DataFrame] , file_format= None, auto_
     return data
 
 
-def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix = False,to_list = False) -> None:
+def process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix = False,to_list = False, deep_check=False) -> None:
     """
     Recursively processes all CSV and XLSX files in a directory,
     converts array strings to NumPy arrays, and saves as Parquet files.
@@ -79,14 +128,23 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
     ----------
     directory_path : str
         Root directory path to search for CSV/XLSX files.
+
     output_dir : str, default 'All CSV Files is Converted Here'
         Folder name where converted files will be saved.
+
     file_format: str
         Saves a DataFrame to a file with the specified format for every file.
+
     auto_fix:    False -> (Default)
         Apply auto_fix function with processing in one time
+
     to_list:     False -> (Array) is better
                  True  -> it will convert to list 
+
+    deep_check:  bool, optional (default=False)
+                 If True, recursively parses nested lists and dicts
+                 stored as strings inside arrays.
+                 May be slower on large datasets.
 
     Returns
     -------
@@ -118,7 +176,7 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                     
                     print(f"{Sub_Item_Path} File Is Processing Now...")
 
-                    df_converted = process_file(Sub_Item_Path)
+                    df_converted = process_file(Sub_Item_Path,auto_fix=auto_fix,deep_check=deep_check)
                     df_converted.reset_index(drop=True,inplace=True)
 
                     rel_path = relpath(Sub_Item_Path, directory_path)

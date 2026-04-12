@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deepcsv"
-version = "0.6.8"
+version = "0.6.9b1"
 authors = [
     { name = "Abdullah Bakr", email = "abdubakora1232@gmail.com" }
 ]

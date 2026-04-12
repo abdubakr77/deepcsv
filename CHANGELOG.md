@@ -4,12 +4,11 @@
 
 ### Added
 
-- `auto_fix()` -> Detects and fixes columns with mixed data types And process Numbers strings to float in a DataFrame.
-- `auto_fix` parameter in `process_file()` to detect and data type is wrong and fix it in one time
+- `deep_check` parameter in `process_file()` — when enabled, recursively parses nested lists and dicts stored as strings inside arrays. Disabled by default due to performance cost on large datasets.
 
 ### Fixes
 
-- Fixed `File_Format` Parameter set to default default value
-- Fixed Some Bugs
+- Fixed Showing Logs While processing
+
 
 ---
