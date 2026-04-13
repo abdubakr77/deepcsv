@@ -104,9 +104,13 @@ df = deepcsv.process_file('path/to/file.csv', to_list=True)
 
 # Deep parse nested lists and dicts inside arrays
 df = deepcsv.process_file('path/to/file.csv', deep_check=True)
+
+# Support for Specific Column In Dataset
+df = deepcsv.process_file('path/to/file.csv', col_name=["col1","col2"])
 ```
 
 | `deep_check` | `bool` | `False` | `True`: recursively parses nested lists/dicts inside arrays — may be slower on large datasets |
+| `col_name` | `str \| list` | `"all"` | Column name or list of names to process. Default `"all"` processes every column. Pass a single name like `"genres"` or a list `["genres", "tags"]` to target specific columns |
 
 **Supported save formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
 
@@ -205,16 +209,32 @@ df = auto_fix('data.csv')
 df = auto_fix(my_dataframe)
 ```
 
+```python
+from deepcsv import auto_fix
+
+df = auto_fix('data.csv')
+df = auto_fix(my_dataframe)
+
+# Fix only specific columns
+df = auto_fix('data.csv', col_name='age')
+df = auto_fix('data.csv', col_name=['age', 'score', 'price'])
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `data_input` | `str \| DataFrame` | required | File path or DataFrame |
+| `col_name` | `str \| list` | `"all"` | Column name or list of names to fix. Default `"all"` applies to every column |
+
 ---
 
 ## 📋 Function Signatures
 
 ```python
-process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False) -> pd.DataFrame
+process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False, col_name:  Union[str, list] = "all") -> pd.DataFrame
 process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix = False,to_list = False, DeepCheck=True) -> None
 read_any(file_path: str) -> pd.DataFrame
 clean_values(data_input, cols=None, ax_0=False, index=None, condition=None, all_cols_except=None, finding_value=None, finding_type=None) -> pd.DataFrame
-auto_fix(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame
+auto_fix(data_input: Union[str, pd.DataFrame], col_name: Union[str, list] = "all") -> pd.DataFrame
 ```
 
 ---
@@ -222,8 +242,10 @@ auto_fix(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame
 ## ✨ Key Features
 
 - String list → real NumPy array conversion (fast, no manual parsing)
+- Target specific columns by name or list — skip what you don't need
 - Deep recursive parsing for nested lists and dicts stored as strings inside arrays
 - Mixed-type column detection and auto-fix with logging
+- Auto-fix supports column targeting — fix one column or a custom list
 - Save in any format — CSV, Excel, JSON, Parquet, Feather, and more
 - One universal file reader supporting 10+ formats
 - Flexible null cleaning by column, row, index, value, or type
@@ -250,6 +272,6 @@ auto_fix(data_input: Union[str, pd.DataFrame]) -> pd.DataFrame
 
 <div align="center">
 
-📦 [PyPI](https://pypi.org/project/deepcsv) · 💻 [GitHub](https://github.com/abdubakr77/deepcsv)
+📦 [PyPI](https://pypi.org/project/deepcsv) · 💻 [GitHub](https://github.com/abdubakr77/deepcsv) · 🔗 [Kaggle](https://www.kaggle.com/code/abdullahbakr7/deepcsv-automatic-data-cleaner)
 
 **By: Abdullah Bakr**
