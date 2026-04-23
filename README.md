@@ -4,11 +4,9 @@
 
 <div align="center">
 
-[![Downloads](https://img.shields.io/pypi/dm/deepcsv?style=flat-square&color=blue&label=Downloads)](https://pypi.org/project/deepcsv)
-[![Version](https://img.shields.io/pypi/v/deepcsv?style=flat-square&color=brightgreen&label=Version)](https://pypi.org/project/deepcsv)
-[![Python](https://img.shields.io/pypi/pyversions/deepcsv?style=flat-square&color=yellow&label=Python)](https://pypi.org/project/deepcsv)
-[![License](https://img.shields.io/github/license/abdubakr77/deepcsv?style=flat-square&color=orange)](https://github.com/abdubakr77/deepcsv)
-[![Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?style=flat-square&color=yellow)](https://github.com/abdubakr77/deepcsv)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/deepcsv?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/deepcsv)
+[![Version](https://img.shields.io/pypi/v/deepcsv?style=flat-square&labelColor=black&label=Version)](https://pypi.org/project/deepcsv)
+[![Stars](https://img.shields.io/github/stars/abdubakr77/deepcsv?style=flat-square&labelColor=black&label=Stars)](https://github.com/abdubakr77/deepcsv)
 
 </div>
 
