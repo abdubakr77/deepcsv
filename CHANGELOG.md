@@ -2,15 +2,25 @@
 
 ---
 
-### Added
+#### Changed
+ 
+- `utils.py` is now a **subpackage** (`utils/`) instead of a flat file
+  - All functions remain the same — no breaking changes
+  - New import style now supported: `from deepcsv.utils import read_any`
+  - Old style still works: `from deepcsv import read_any`
 
-- Added Parameter `col_name` in `process_file()` & `auto_fix()` To Support for Specific Column In Dataset
-- Support for Dictionary Strings, now it will convert it into a real dictionary 
-- `deep_check` parameter in `process_file()` — when enabled, recursively parses nested lists and dicts stored as strings inside arrays. Disabled by default due to performance cost on large datasets.
 
-### Fixes
+#### Added
+ 
+- `utils` is now accessible as a submodule — `deepcsv.utils.read_any(...)` works directly after `import deepcsv`
+- Added `ml/` subpackage for machine learning utilities *(coming soon)*
+  - `deepcsv.ml.auto_fs()`
+- Added Function called auto_fs (Auto Feature Selection) in `deepcsv.ml`
 
-- Fixed Showing Logs While processing
 
+#### Notes
+ 
+- All existing code continues to work without any changes
+- New subpackages (`ml`) are isolated — importing `deepcsv` won't load their dependencies unless explicitly used
 
 ---

@@ -1,5 +1,17 @@
-from .deepcsv import process_all_files, process_file 
-from .utils import read_any, clean_values, auto_fix, save_as ,_validate_cols , _validate_index , _parse_operator , _validate_condition , _val_dtype
+from .deepcsv import process_all_files, process_file
+from .utils import (
+    read_any,
+    clean_values,
+    auto_fix,
+    save_as,
+    _validate_cols,
+    _validate_index,
+    _parse_operator,
+    _validate_condition,
+    _val_dtype,
+)
+from . import utils
+from . import ml 
 from importlib.metadata import PackageNotFoundError, version as _version
 import requests as _requests
 
@@ -9,7 +21,9 @@ __all__ = [
     "read_any",
     "clean_values",
     "auto_fix",
-    "save_as"
+    "save_as",
+    "utils",
+    "ml",
 ]
 
 
