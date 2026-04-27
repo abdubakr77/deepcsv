@@ -2,25 +2,17 @@
 
 ---
 
-#### Changed
- 
-- `utils.py` is now a **subpackage** (`utils/`) instead of a flat file
-  - All functions remain the same — no breaking changes
-  - New import style now supported: `from deepcsv.utils import read_any`
-  - Old style still works: `from deepcsv import read_any`
-
-
 #### Added
  
-- `utils` is now accessible as a submodule — `deepcsv.utils.read_any(...)` works directly after `import deepcsv`
-- Added `ml/` subpackage for machine learning utilities *(coming soon)*
-  - `deepcsv.ml.auto_fs()`
-- Added Function called auto_fs (Auto Feature Selection) in `deepcsv.ml`
+- Added `ml/` subpackage for machine learning utilities  
+- Added `auto_fs()` (Auto Feature Selection) in `deepcsv.ml`
+  - Supports multiple modes:
+    - `fast` → correlation-based selection
+    - `balanced` → model-based selection using cross-validation (greedy approach)
 
+---
 
 #### Notes
  
-- All existing code continues to work without any changes
-- New subpackages (`ml`) are isolated — importing `deepcsv` won't load their dependencies unless explicitly used
-
----
+- `auto_fs()` automatically handles feature selection for supervised tasks  
+- Designed to provide simple, high-level API for feature selection without manual setup
