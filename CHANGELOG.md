@@ -2,13 +2,13 @@
 
 ---
 
+#### Changes
+
+- Change RandomForest Model to Ridge more stabilty and faster
+
 #### Added
  
-- Added `ml/` subpackage for machine learning utilities  
-- Added `auto_fs()` (Auto Feature Selection) in `deepcsv.ml`
-  - Supports multiple modes:
-    - `fast` → correlation-based selection
-    - `balanced` → model-based selection using cross-validation (greedy approach)
+- Added Auto Tuned for Ridge Model
 
 ---
 

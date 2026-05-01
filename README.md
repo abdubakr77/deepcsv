@@ -77,6 +77,7 @@ pip install deepcsv
 | `read_any()` | Reads any file format automatically |
 | `clean_values()` | Cleans nulls, values, types with full control |
 | `auto_fix()` | Detects and fixes mixed data types automatically and MORE |
+| `auto_fs()` | Detects every columns and return tha data with important columns |
 
 </div>
 

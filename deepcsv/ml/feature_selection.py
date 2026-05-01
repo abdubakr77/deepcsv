@@ -1,6 +1,7 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier,GradientBoostingRegressor,GradientBoostingClassifier
-from sklearn.model_selection import cross_val_score,train_test_split
+# from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier,GradientBoostingRegressor,GradientBoostingClassifier
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import cross_val_score
 
 
 def auto_fs(df: pd.DataFrame , target, model=None , mode="balanced" , corr_threshold=0.3):
@@ -30,17 +31,27 @@ def auto_fs(df: pd.DataFrame , target, model=None , mode="balanced" , corr_thres
         elif mode == "balanced":
             df_copy = df.copy()
 
-            model = RandomForestRegressor()
+            def auto_alpha_tuned():
+                if len(df) <= 10000:
+                    alpha=0.1
+                elif len(df) <= 100000:
+                    alpha=1.0
+                else:
+                    alpha=5.0
+                return alpha
+            
+            model = model = Ridge(alpha=auto_alpha_tuned())
+
             X = df_copy.drop(target, axis=1)
             y = df_copy[target]
 
-            best_score = cross_val_score(model, X, y, cv=3).mean()
+            best_score = cross_val_score(model, X , y, cv=5).mean()
 
             for colname in list(X.columns):
 
                 temp_X = X.drop(columns=[colname])
 
-                score = cross_val_score(model, temp_X, y, cv=3).mean()
+                score = cross_val_score(model, temp_X, y, cv=5).mean()
                 print(best_score)
                 print(score)
                 if score >= best_score:
