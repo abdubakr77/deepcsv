@@ -77,7 +77,7 @@ pip install deepcsv
 | `read_any()` | Reads any file format automatically |
 | `clean_values()` | Cleans nulls, values, types with full control |
 | `auto_fix()` | Detects and fixes mixed data types automatically and MORE |
-| `auto_fs()` | Detects every columns and return tha data with important columns |
+| `auto_fs()` | Auto feature selection — keeps only the columns that matter for your target |
 
 </div>
 
@@ -224,6 +224,36 @@ df = auto_fix('data.csv', col_name=['age', 'score', 'price'])
 | `data_input` | `str \| DataFrame` | required | File path or DataFrame |
 | `col_name` | `str \| list` | `"all"` | Column name or list of names to fix. Default `"all"` applies to every column |
 
+
+### `auto_fs(df, target, model=None, mode="balanced", corr_threshold=0.3)`
+
+Automatically selects the most important features for a given target column.
+Two modes available — pick speed or accuracy.
+
+```python
+from deepcsv.ml import auto_fs
+
+# Balanced mode (default) — uses Ridge + cross-validation to drop weak features
+result = auto_fs(df, target='price')
+
+# Fast mode — uses correlation threshold only, much faster on large datasets
+result = auto_fs(df, target='price', mode='fast')
+
+# Custom correlation threshold in fast mode
+result = auto_fs(df, target='price', mode='fast', corr_threshold=0.4)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `df` | `DataFrame` | required | Input DataFrame |
+| `target` | `str` | required | Target column name |
+| `model` | `model` | `None` | Custom sklearn model. Defaults to auto-tuned Ridge |
+| `mode` | `str` | `"balanced"` | `"balanced"`: Ridge + cross-val drop loop — `"fast"`: correlation filter only |
+| `corr_threshold` | `float` | `0.3` | Minimum correlation to keep a feature (used in `fast` mode) |
+
+> **Note:** `auto_fs` is part of the `deepcsv.ml` subpackage — install scikit-learn to use it.
+
+
 ---
 
 ## 📋 Function Signatures
@@ -234,6 +264,7 @@ process_all_files(directory_path: str, output_dir="All CSV Files is Converted He
 read_any(file_path: str) -> pd.DataFrame
 clean_values(data_input, cols=None, ax_0=False, index=None, condition=None, all_cols_except=None, finding_value=None, finding_type=None) -> pd.DataFrame
 auto_fix(data_input: Union[str, pd.DataFrame], col_name: Union[str, list] = "all") -> pd.DataFrame
+auto_fs(df: pd.DataFrame, target: str, model=None, mode: str = "balanced", corr_threshold: float = 0.3) -> pd.DataFrame
 ```
 
 ---
@@ -245,6 +276,7 @@ auto_fix(data_input: Union[str, pd.DataFrame], col_name: Union[str, list] = "all
 - Deep recursive parsing for nested lists and dicts stored as strings inside arrays
 - Mixed-type column detection and auto-fix with logging
 - Auto-fix supports column targeting — fix one column or a custom list
+- Auto feature selection with two modes: correlation-based (fast) or cross-validation (balanced)
 - Save in any format — CSV, Excel, JSON, Parquet, Feather, and more
 - One universal file reader supporting 10+ formats
 - Flexible null cleaning by column, row, index, value, or type
