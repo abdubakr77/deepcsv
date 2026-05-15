@@ -248,7 +248,7 @@ result = auto_fs(df, target='price', mode='fast', corr_threshold=0.4)
 | `df` | `DataFrame` | required | Input DataFrame |
 | `target` | `str` | required | Target column name |
 | `model` | `model` | `None` | Custom sklearn model. Defaults to auto-tuned Ridge |
-| `mode` | `str` | `"balanced"` | `"balanced"`: Ridge + cross-val drop loop — `"fast"`: correlation filter only |
+| `mode` | `str` | `"balanced"` | `"fast"`: correlation filter only — `"balanced"`: Ridge + cross-val loop — `"accurate"`: GradientBoosting + cross-val, slowest but most precise |
 | `corr_threshold` | `float` | `0.3` | Minimum correlation to keep a feature (used in `fast` mode) |
 
 > **Note:** `auto_fs` is part of the `deepcsv.ml` subpackage — install scikit-learn to use it.
