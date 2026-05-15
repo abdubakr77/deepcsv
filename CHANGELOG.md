@@ -2,17 +2,14 @@
 
 ---
 
-#### Changes
-
-- Change RandomForest Model to Ridge more stabilty and faster
-
 #### Added
  
-- Added Auto Tuned for Ridge Model
+- Added `accurate` mode to `auto_fs()` using auto-tuned GradientBoosting
+- Added `get_gb_params()` — auto-tunes GradientBoosting params based on row count and feature count
 
 ---
 
 #### Notes
  
-- `auto_fs()` automatically handles feature selection for supervised tasks  
-- Designed to provide simple, high-level API for feature selection without manual setup
+- `accurate` mode is slower but captures non-linear relationships — use it when `balanced` is not enough
+- GradientBoosting params scale automatically with dataset size and feature count to avoid overfitting
