@@ -8,7 +8,7 @@ version = "0.8.0"
 authors = [
     { name = "Abdullah Bakr", email = "abdubakora1232@gmail.com" }
 ]
-description = "Automatically processes data files in directories, converts array-like strings to NumPy arrays, detects and fixes data type issues, and saves results as optimized Parquet files and MORE!"
+description = "Cleans messy data files: turns list strings into NumPy arrays, fixes mixed types and numbers stored as text, removes outliers, selects features, and reads or saves any common format."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.7"

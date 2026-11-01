@@ -6,11 +6,11 @@
 
 #### Added
 
-- Added `auto_outliers()` in `deepcsv.ml` — detects and removes outlier rows with `iqr`, `zscore` or `isolation_forest` (#37)
-- Added `data_details()` — deep report about your data (size, memory, missing values, duplicates, types, numeric stats, outliers) with a hint for the deepcsv function that fixes each problem (#27)
+- Added `auto_outliers()` to `deepcsv.ml`. It removes outlier rows using `iqr`, `zscore` or `isolation_forest` (#37)
+- Added `data_details()`, a report about your data (size, memory, missing values, duplicates, types, numeric stats, outliers). Each warning names the deepcsv function that fixes it (#27)
 - `data_details()` can export the report as CSV (columns table) or TXT (full report) with `export=` (#30)
 - `data_details()` also flags text columns that mostly hold numbers (ex: `"120"`, `"95"`, `"TBD"`) and says how many values are not numbers
-- Added `merge_data()` — merges two datasets of any supported format by a specific column (#4)
+- Added `merge_data()`, which merges two datasets of any supported format on a column (#4)
 - Added `pip install deepcsv[ml]` extra for scikit-learn and tqdm
 - Added unit tests in `tests/`
 
@@ -19,7 +19,7 @@
 - `process_file()` and `auto_fix()` crashed on any DataFrame with more than one column (`col_name` check compared a string to the whole column index), and a list `col_name` never worked
 - `process_all_files()` crashed with `TypeError` on every run, saved files as `name.parquet.parquet`, and processed its own output folder on a second run
 - `auto_fix()` turned mixed int/text columns into booleans
-- `process_file()` and `auto_fix()` changed the DataFrame you passed in — they now work on a copy
+- `process_file()` and `auto_fix()` changed the DataFrame you passed in. They now work on a copy
 - The Deep Check warning was printed once for every parsed value, now it prints once
 - `deep_check=True` crashed with `UnicodeEncodeError` on Windows consoles that cannot print emoji
 - `import deepcsv` failed when scikit-learn or tqdm were not installed
@@ -31,7 +31,7 @@
 
 #### Notes
 
-- The public API did not change — every existing call works as before
+- The public API did not change, every existing call works as before
 - Charts (#28, #30) are planned for the next release
 
 ---
@@ -41,11 +41,11 @@
 #### Added
  
 - Added `accurate` mode to `auto_fs()` using auto-tuned GradientBoosting
-- Added `get_gb_params()` — auto-tunes GradientBoosting params based on row count and feature count
+- Added `get_gb_params()`, which tunes the GradientBoosting params from the row count and feature count
 
 ---
 
 #### Notes
  
-- `accurate` mode is slower but captures non-linear relationships — use it when `balanced` is not enough
+- `accurate` mode is slower but captures non-linear relationships. Use it when `balanced` is not enough
 - GradientBoosting params scale automatically with dataset size and feature count to avoid overfitting

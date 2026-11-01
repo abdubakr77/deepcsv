@@ -10,21 +10,21 @@
 
 </div>
 
-> *"You think you saved a list. You open it tomorrow — and it's a string."*
+> *"You think you saved a list. You open it tomorrow, and it's a string."*
 
-`deepcsv` was built to solve exactly this problem.
+`deepcsv` exists to fix that.
 
 </div>
 
 ---
 
-## 🎬 See it in action
+## See it in action
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/abdubakr77/deepcsv/main/assets/demo.gif" alt="deepcsv demo: data_details() finds the problems in an Excel file, auto_fix(), process_file() and auto_outliers() fix them, and the second report is clean" style="width:90%;">
 </div>
 
-A messy Excel file — numbers saved as text, lists saved as strings, 3 outliers. `data_details()` finds all three, one line fixes each, and the second report comes back clean. *(Real output of deepcsv, not a mock-up.)*
+A messy Excel file with numbers saved as text, lists saved as strings and 3 outliers. `data_details()` finds all three, one line fixes each, and the second report comes back clean. The output in the GIF is real, not a mock-up.
 
 ---
 
@@ -36,35 +36,35 @@ A messy Excel file — numbers saved as text, lists saved as strings, 3 outliers
 
 Your CSV files are lying to you.
 
-- You save a list — you open it tomorrow and it's a **string**
-- You have a lot of list or dict as strings **nested in lists and dicts**
-- Your column has numbers — it secretly has **3 different data types**
-- You have 200 CSV files across 40 folders — and you process them **one by one**
+- You save a list, open the file tomorrow, and it's a **string**
+- You have lists and dicts stored as strings, **nested inside other lists and dicts**
+- Your column looks like numbers but secretly holds **3 different data types**
+- You have 200 CSV files across 40 folders and process them **one by one**
 - You load a file and spend 20 minutes just **picking the right reader**
 - You have nulls scattered everywhere with **no clean way to handle them**
 
-This is the silent killer of every data pipeline.
+Small problems like these quietly break pipelines.
 
 ---
 
-## The Solution ✅
+## The Solution
 
 <div align="center">
   <img src="https://i.postimg.cc/vZQYY72N/Gemini-Generated-Image-uekrheuekrheuekr.png" style="width:80%;">
 </div>
 
-`deepcsv` handles all of this in **one import.**
+`deepcsv` handles all of it with one import.
 
 - Walks through every folder and subfolder automatically
 - Detects columns storing lists as strings and converts them to real NumPy arrays
 - Catches mixed-type columns and fixes them automatically
-- Saves everything in any format you choose — not just Parquet
-- Reads any file format with one function — no more picking the right reader
-- Cleans nulls with full control over columns, rows, indexes, values, and types
+- Saves in any format you choose, not just Parquet
+- Reads any file format with one function, so there is no more picking the right reader
+- Cleans nulls by column, row, index, value or type
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ```bash
 pip install deepcsv
@@ -75,7 +75,7 @@ pip install deepcsv[ml]
 
 ---
 
-## 🗺️ Functions Overview
+## Functions Overview
 
 <div align="center">
   <img src="https://i.postimg.cc/HxJsGpvQ/Gemini-Generated-Image-ttk3ohttk3ohttk3.png" style="width:80%;">
@@ -85,21 +85,21 @@ pip install deepcsv[ml]
 
 | Function | What it does |
 |---|---|
-| `process_file()` | Converts string lists → NumPy arrays, fixes mixed types |
+| `process_file()` | Converts string lists to NumPy arrays, fixes mixed types |
 | `process_all_files()` | Batch processes entire folder trees |
 | `read_any()` | Reads any file format automatically |
-| `clean_values()` | Cleans nulls, values, types with full control |
-| `auto_fix()` | Detects and fixes mixed data types automatically and MORE |
-| `auto_fs()` | Auto feature selection — keeps only the columns that matter for your target |
+| `clean_values()` | Cleans nulls, values and types |
+| `auto_fix()` | Finds and fixes mixed data types and numbers stored as text |
+| `auto_fs()` | Feature selection: keeps the columns that matter for your target |
 | `auto_outliers()` | Detects outliers and removes their rows (IQR, Z-score or Isolation Forest) |
-| `data_details()` | Deep report about your data — export it as CSV or TXT |
+| `data_details()` | Report about your data (types, missing values, outliers), exportable as CSV or TXT |
 | `merge_data()` | Merges two datasets (any format) by a specific column |
 
 </div>
 
 ---
 
-## 📖 Functions
+## Functions
 
 ### `process_file(data_input, file_format=None, auto_fix=False, to_list=False, deep_check=False, col_name="all")`
 
@@ -120,14 +120,14 @@ df = deepcsv.process_file('path/to/file.csv', to_list=True)
 # Deep parse nested lists and dicts inside arrays
 df = deepcsv.process_file('path/to/file.csv', deep_check=True)
 
-# Support for Specific Column In Dataset
+# Only some columns
 df = deepcsv.process_file('path/to/file.csv', col_name=["col1","col2"])
 ```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `deep_check` | `bool` | `False` | `True`: recursively parses nested lists/dicts inside arrays — may be slower on large datasets |
-| `col_name` | `str \| list` | `"all"` | Column name or list of names to process. Default `"all"` processes every column. Pass a single name like `"genres"` or a list `["genres", "tags"]` to target specific columns |
+| `deep_check` | `bool` | `False` | `True`: also parses lists and dicts nested inside the arrays. Slower on large datasets |
+| `col_name` | `str \| list` | `"all"` | Column name or list of names to process. The default `"all"` processes every column. Pass `"genres"` or `["genres", "tags"]` to pick columns |
 
 **Supported save formats:** `.csv` `.tsv` `.txt` `.xlsx` `.json` `.parquet` `.pkl` `.feather` `.html` `.xml`
 
@@ -140,7 +140,7 @@ Walks through all folders and subfolders, applies `process_file` on every suppor
 ```python
 import deepcsv
 
-# Default — saves as parquet
+# Default: saves as parquet
 deepcsv.process_all_files('path/to/folder')
 
 # Custom output folder
@@ -156,7 +156,7 @@ deepcsv.process_all_files('path/to/folder', file_format='csv')
 
 ### `read_any(file_path)`
 
-Reads any supported file format and returns a pandas DataFrame — one function for everything.
+Reads any supported file format and returns a pandas DataFrame. One function for everything.
 
 ```python
 from deepcsv import read_any
@@ -204,9 +204,9 @@ df = clean_values('data.csv', all_cols_except=['id', 'name'])
 |---|---|---|---|
 | `data_input` | `str \| DataFrame` | required | File path or DataFrame |
 | `cols` | `list` | `None` | Columns to apply on |
-| `ax_0` | `bool` | `False` | `True`: drop rows with nulls — `False`: drop fully-null cols |
+| `ax_0` | `bool` | `False` | `True`: drop rows with nulls. `False`: drop fully-null columns |
 | `index` | `list` | `None` | Row indexes to drop |
-| `condition` | `list` | `None` | `[operator, value]` — ex: `['>=', 500]` |
+| `condition` | `list` | `None` | `[operator, value]`, for example `['>=', 500]` |
 | `all_cols_except` | `list` | `None` | Apply on all columns except these |
 | `finding_value` | `any` | `None` | Find and remove rows containing this value |
 | `finding_type` | `type` | `None` | Find and remove rows matching this Python type |
@@ -246,18 +246,18 @@ df = auto_fix('data.csv', col_name=['age', 'score', 'price'])
 ### `auto_fs(df, target, model=None, mode="balanced", corr_threshold=0.3)`
 
 Automatically selects the most important features for a given target column.
-Three modes available — pick speed or accuracy.
+Three modes, so you can pick speed or accuracy.
 
 ```python
 from deepcsv.ml import auto_fs
 
-# Balanced mode (default) — uses Ridge + cross-validation to drop weak features
+# Balanced mode (default): Ridge + cross-validation drops weak features
 result = auto_fs(df, target='price')
 
-# Accurate mode — GradientBoosting + cross-validation, slowest but most precise
+# Accurate mode: GradientBoosting + cross-validation, slowest but most precise
 result = auto_fs(df, target='price', mode='accurate')
 
-# Fast mode — uses correlation threshold only, much faster on large datasets
+# Fast mode: correlation threshold only, much faster on large datasets
 result = auto_fs(df, target='price', mode='fast')
 
 # Custom correlation threshold in fast mode
@@ -269,10 +269,10 @@ result = auto_fs(df, target='price', mode='fast', corr_threshold=0.4)
 | `df` | `DataFrame` | required | Input DataFrame |
 | `target` | `str` | required | Target column name |
 | `model` | `model` | `None` | Custom sklearn model. Defaults to auto-tuned Ridge |
-| `mode` | `str` | `"balanced"` | `"fast"`: correlation filter only — `"balanced"`: Ridge + cross-val loop — `"accurate"`: GradientBoosting + cross-val, slowest but most precise |
+| `mode` | `str` | `"balanced"` | `"fast"`: correlation filter only. `"balanced"`: Ridge + cross-validation loop. `"accurate"`: GradientBoosting + cross-validation, slowest but most precise |
 | `corr_threshold` | `float` | `0.3` | Minimum correlation to keep a feature (used in `fast` mode) |
 
-> **Note:** `auto_fs` is part of the `deepcsv.ml` subpackage — install the extras with `pip install deepcsv[ml]` (scikit-learn + tqdm) to use it.
+> `auto_fs` lives in the `deepcsv.ml` subpackage. Install the extras with `pip install deepcsv[ml]` (scikit-learn and tqdm) to use it.
 
 ---
 
@@ -292,7 +292,7 @@ clean = auto_outliers(df, cols=['age', 'salary'])
 # Z-score with a stricter threshold
 clean = auto_outliers(df, method='zscore', threshold=2.5)
 
-# Look at all columns together — catches rows that are strange only as a combination
+# Look at all columns together, which catches rows that are only strange as a combination
 clean = auto_outliers(df, method='isolation_forest', threshold=0.1)
 ```
 
@@ -300,7 +300,7 @@ clean = auto_outliers(df, method='isolation_forest', threshold=0.1)
 |---|---|---|---|
 | `df` | `str \| DataFrame` | required | File path or DataFrame |
 | `cols` | `list` | `None` | Numeric columns to check. Default: all numeric columns |
-| `method` | `str` | `"iqr"` | `"iqr"`: outside `Q1 - t*IQR` / `Q3 + t*IQR` — `"zscore"`: `abs(z) > t` — `"isolation_forest"`: multi-column detection (needs scikit-learn) |
+| `method` | `str` | `"iqr"` | `"iqr"`: outside `Q1 - t*IQR` / `Q3 + t*IQR`. `"zscore"`: `abs(z) > t`. `"isolation_forest"`: looks at all columns together (needs scikit-learn) |
 | `threshold` | `float` | `None` | `t` of the method. Defaults: `1.5` (iqr), `3.0` (zscore), `0.05` = share of outliers (isolation_forest) |
 
 > The original index is kept, so you can see which rows were removed.
@@ -309,7 +309,7 @@ clean = auto_outliers(df, method='isolation_forest', threshold=0.1)
 
 ### `data_details(data_input, export=None, output_path="data_details", show=True)`
 
-Shows deep details about your data — size, memory, missing values, duplicates, types, unique values, numeric stats, outliers — and tells you **which deepcsv function fixes each problem**.
+Prints a report about your data: size, memory, missing values, duplicates, types, unique values, numeric stats and outliers. Each warning names the deepcsv function that fixes it.
 
 ```python
 from deepcsv import data_details
@@ -362,7 +362,7 @@ column   mean     std  min  25%  50%  75%   max  outliers
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `data_input` | `str \| DataFrame` | required | File path (any supported format) or DataFrame |
-| `export` | `str \| list` | `None` | `"csv"`: columns table — `"txt"`: full report — `["csv", "txt"]`: both |
+| `export` | `str \| list` | `None` | `"csv"`: columns table. `"txt"`: full report. `["csv", "txt"]`: both |
 | `output_path` | `str` | `"data_details"` | File path without extension |
 | `show` | `bool` | `True` | `False`: do not print, only return the report |
 
@@ -370,7 +370,7 @@ column   mean     std  min  25%  50%  75%   max  outliers
 
 ### `merge_data(left, right, on, how="inner", suffixes=("_x", "_y"))`
 
-Merges two datasets by a specific column (or a list of columns). Each dataset can be a file in **any** supported format or a DataFrame — so you can merge a CSV with an Excel file directly.
+Merges two datasets on a column (or a list of columns). Each dataset can be a file in any supported format or a DataFrame, so you can merge a CSV with an Excel file directly.
 
 ```python
 from deepcsv import merge_data
@@ -391,7 +391,7 @@ df = merge_data('a.csv', 'b.csv', on=['country', 'year'], how='outer')
 
 ---
 
-## 📋 Function Signatures
+## Function Signatures
 
 ```python
 process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False, col_name:  Union[str, list] = "all") -> pd.DataFrame
@@ -407,44 +407,37 @@ merge_data(left: Union[str, pd.DataFrame], right: Union[str, pd.DataFrame], on: 
 
 ---
 
-## ✨ Key Features
+## What you get
 
-- String list → real NumPy array conversion (fast, no manual parsing)
-- Target specific columns by name or list — skip what you don't need
-- Deep recursive parsing for nested lists and dicts stored as strings inside arrays
-- Mixed-type column detection and auto-fix with logging
-- Auto-fix supports column targeting — fix one column or a custom list
-- Auto feature selection with three modes: correlation-based (fast), Ridge cross-validation (balanced) or GradientBoosting (accurate)
-- Auto outlier removal with IQR, Z-score or Isolation Forest
-- Deep data report that names the deepcsv function fixing each problem — export it as CSV or TXT
-- Merge datasets of different formats by a specific column
-- Save in any format — CSV, Excel, JSON, Parquet, Feather, and more
-- One universal file reader supporting 10+ formats
-- Flexible null cleaning by column, row, index, value, or type
-- Conditional filtering with 6 operators
-- Recursive directory traversal
-- Warning messages for full transparency
+- Lists stored as strings become real NumPy arrays (or Python lists). `deep_check` also handles lists and dicts nested inside them.
+- The cleaning functions work on one column, a list of columns, or all of them.
+- Mixed-type columns and numbers stored as text are found and fixed, and every change is printed.
+- Cleaning by null, value, type or index, with six comparison operators for conditions.
+- One reader for 10+ formats, and saving to CSV, Excel, JSON, Parquet, Feather and more.
+- Folder trees are processed recursively.
+- `auto_fs` selects features in three modes, and `auto_outliers` removes outliers with three methods.
+- `data_details` reports on your data and exports it as CSV or TXT, and `merge_data` joins files of different formats.
 
 ---
 
-## 📝 Notes
+## Notes
 
 - Requires `pyarrow` for Parquet and Feather support
-- Only saves files in `process_all_files` if the DataFrame contains converted array columns
+- `process_all_files` only saves files that contain converted list columns
 
 ---
 
-## 📦 Requirements
+## Requirements
 
 - Python >= 3.7
 - pandas
 - pyarrow
-- scikit-learn + tqdm (optional, only for `deepcsv.ml` — `pip install deepcsv[ml]`)
+- scikit-learn and tqdm (optional, only needed for `deepcsv.ml`: `pip install deepcsv[ml]`)
 
 ---
 
 <div align="center">
 
-📦 [PyPI](https://pypi.org/project/deepcsv) · 💻 [GitHub](https://github.com/abdubakr77/deepcsv) · 🔗 [Kaggle](https://www.kaggle.com/code/abdullahbakr7/deepcsv-automatic-data-cleaner)
+[PyPI](https://pypi.org/project/deepcsv) · [GitHub](https://github.com/abdubakr77/deepcsv) · [Kaggle](https://www.kaggle.com/code/abdullahbakr7/deepcsv-automatic-data-cleaner)
 
 **By: Abdullah Bakr**
