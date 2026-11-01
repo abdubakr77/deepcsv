@@ -4,6 +4,7 @@ from .utils import (
     clean_values,
     auto_fix,
     save_as,
+    data_details,
     _validate_cols,
     _validate_index,
     _parse_operator,
@@ -22,6 +23,7 @@ __all__ = [
     "clean_values",
     "auto_fix",
     "save_as",
+    "data_details",
     "utils",
     "ml",
 ]

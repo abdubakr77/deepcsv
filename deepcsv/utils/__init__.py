@@ -10,12 +10,14 @@ from .utils import (
     _val_dtype,
     _resolve_cols,
 )
+from .details import data_details
 
 __all__ = [
     "read_any",
     "clean_values",
     "auto_fix",
     "save_as",
+    "data_details",
     "_validate_cols",
     "_validate_index",
     "_parse_operator",
