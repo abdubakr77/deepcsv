@@ -46,6 +46,19 @@ class TestDataDetails(unittest.TestCase):
         self.assertTrue(columns.loc["price", "numbers_as_text"])
         self.assertFalse(columns.loc["city", "mixed_types"])
 
+    def test_mostly_numbers_as_text_counts_the_bad_values(self):
+        df = pd.DataFrame({"price": ["10", "20", "30", "40", "TBD"]})
+        columns = _quiet(deepcsv.data_details, df)["columns"].set_index("column")
+        self.assertTrue(columns.loc["price", "numbers_as_text"])
+        self.assertEqual(columns.loc["price", "not_numbers"], 1)
+        warnings = _quiet(deepcsv.data_details, df)["warnings"]
+        self.assertTrue(any("1 values are not numbers" in w for w in warnings))
+
+    def test_plain_text_is_not_numbers_as_text(self):
+        df = pd.DataFrame({"city": ["Cairo", "Giza", "10", "Tanta", "Luxor"]})
+        columns = _quiet(deepcsv.data_details, df)["columns"].set_index("column")
+        self.assertFalse(columns.loc["city", "numbers_as_text"])
+
     def test_warnings_point_to_the_fixing_function(self):
         text = " ".join(_quiet(deepcsv.data_details, self.df)["warnings"])
         for hint in ["auto_fix", "process_file", "auto_outliers"]:

@@ -42,12 +42,16 @@ def _count_duplicates(data):
         return int(data.astype(str).duplicated().sum())
 
 
-def _numbers_as_text(series):
-    """True if a text column only holds numbers (ex: '12', '3.5')."""
+def _count_text_not_numbers(series):
+    """
+    For a text column that mostly holds numbers (ex: '12', '3.5') returns how many values
+    are NOT numbers (ex: 'TBD'). Returns None if the column is not a numbers-as-text column.
+    """
     values = series.dropna()
     if len(values) == 0 or not values.apply(lambda x: isinstance(x, str)).all():
-        return False
-    return bool(pd.to_numeric(values, errors='coerce').notna().all())
+        return None
+    not_numbers = int(pd.to_numeric(values, errors='coerce').isna().sum())
+    return not_numbers if not_numbers <= len(values) * 0.2 else None
 
 
 def _build_columns_table(data):
@@ -71,7 +75,9 @@ def _build_columns_table(data):
 
         first = values.iloc[0] if len(values) else None
         row["list_strings"] = isinstance(first, str) and first.strip().startswith(("[", "{"))
-        row["numbers_as_text"] = _numbers_as_text(series)
+        not_numbers = _count_text_not_numbers(series)
+        row["numbers_as_text"] = not_numbers is not None
+        row["not_numbers"] = not_numbers or 0
 
         if _is_numeric(series) and len(values):
             stats = series.describe()
@@ -107,7 +113,8 @@ def _build_warnings(data, columns, overview):
         if row["mixed_types"]:
             warnings.append(f"({col}) has mixed data types - fix it with auto_fix().")
         if row["numbers_as_text"]:
-            warnings.append(f"({col}) stores numbers as text - fix it with auto_fix().")
+            extra = f" ({int(row['not_numbers'])} values are not numbers)" if row["not_numbers"] else ""
+            warnings.append(f"({col}) stores numbers as text{extra} - fix it with auto_fix().")
         if row["list_strings"]:
             warnings.append(f"({col}) stores lists/dicts as strings - convert it with process_file().")
         if row.get("outliers", 0) > 0:
