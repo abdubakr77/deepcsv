@@ -6,7 +6,7 @@ from typing import Union
 from ast import literal_eval
 from numpy import nan,array,ndarray
 from os import listdir,makedirs
-from os.path import join,relpath,dirname,isfile,isdir
+from os.path import join,relpath,dirname,isfile,isdir,splitext,abspath
 from warnings import filterwarnings
 filterwarnings("ignore")
 
@@ -177,19 +177,20 @@ def process_all_files(directory_path: str, output_dir="All CSV Files is Converte
                     
                     print(f"{Sub_Item_Path} File Is Processing Now...")
 
-                    df_converted = process_file(Sub_Item_Path,auto_fix=auto_fix,deep_check=deep_check)
+                    df_converted = process_file(Sub_Item_Path,auto_fix=auto_fix,to_list=to_list,deep_check=deep_check)
                     df_converted.reset_index(drop=True,inplace=True)
 
                     rel_path = relpath(Sub_Item_Path, directory_path)
                     output = join(base_output,rel_path)
                     if "List" in df_converted.columns[-1]:
-                        print(Sub_Item_Path)
                         makedirs(dirname(output),exist_ok=True)
+                        # save_as adds the extension itself, so pass the path without it
                         save_as(data=df_converted,
-                                current_dir=output.replace(f".{Sub_Item_Path.split(".")[-1].strip().lower()}", f".{file_format}"),
-                                ext=file_format,to_list=to_list)
+                                current_dir=splitext(output)[0],
+                                ext=file_format)
 
-                elif isdir(Sub_Item_Path):
+                # Skip the output folder so converted files are never processed again
+                elif isdir(Sub_Item_Path) and abspath(Sub_Item_Path) != abspath(base_output):
 
                     all_folders.append(Sub_Item_Path)
 
