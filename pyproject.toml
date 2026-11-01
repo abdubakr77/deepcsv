@@ -37,6 +37,9 @@ dependencies = [
     "requests",
 ]
 
+[project.optional-dependencies]
+ml = ["scikit-learn", "tqdm"]
+
 [project.urls]
 Homepage   = "https://github.com/abdubakr77/deepcsv"
 Source     = "https://github.com/abdubakr77/deepcsv"
@@ -45,3 +48,4 @@ Changelog  = "https://github.com/abdubakr77/deepcsv/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["deepcsv*"]

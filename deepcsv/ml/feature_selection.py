@@ -1,8 +1,4 @@
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor, GradientBoostingClassifier
-from sklearn.linear_model import Ridge
-from sklearn.model_selection import cross_val_score
-from tqdm import tqdm
 
 
 def auto_fs(
@@ -36,6 +32,12 @@ def auto_fs(
     pd.DataFrame
         DataFrame with only the selected features + target column.
     """
+
+    # scikit-learn and tqdm are imported here so `import deepcsv` works without them
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.linear_model import Ridge
+    from sklearn.model_selection import cross_val_score
+    from tqdm import tqdm
 
     if target is None:
         # Soon: unsupervised feature selection
