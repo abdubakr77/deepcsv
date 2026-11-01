@@ -8,6 +8,7 @@ from .utils import (
     _parse_operator,
     _validate_condition,
     _val_dtype,
+    _resolve_cols,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "_parse_operator",
     "_validate_condition",
     "_val_dtype",
+    "_resolve_cols",
 ]

@@ -1,6 +1,6 @@
 import pyarrow
 import pandas as pd
-from .utils import read_any, save_as
+from .utils import read_any, save_as, _resolve_cols
 from . import utils
 from typing import Union
 from ast import literal_eval
@@ -52,8 +52,6 @@ def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, 
     def _parse_value_(x, to_list=False):
         """Recursively parse a single value - handles str, list, dict, numpy array."""
 
-        print("⚠️  Deep Check is enabled — recursively parsing nested lists/dicts. This may take longer on large datasets.")
-
         # String that looks like a list or dict
         if isinstance(x, str):
             stripped = x.strip()
@@ -83,66 +81,38 @@ def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, 
     except:
         data = data_input
 
+    # Work on a copy so the user's DataFrame is never changed in place
+    data = data.copy()
+
     if auto_fix:
         print("Now Trying to detects and fixes columns with mixed data types And process Numbers strings to float in a DataFrame.")
         data = utils.auto_fix(data_input=data,col_name=col_name)
 
-    if col_name == data.columns or col_name.strip() in data.columns:
-        
-            ColName=col_name
-            First_Value = data[ColName].iloc[0]
+    if deep_check:
+        print("⚠️  Deep Check is enabled — recursively parsing nested lists/dicts. This may take longer on large datasets.")
 
+    # "all", one column name, or a list of names -> list of columns
+    for ColName in _resolve_cols(col_name, data):
 
-            if isinstance(First_Value , str) and (First_Value.strip().startswith("[") or First_Value.strip().startswith("{")):
-                print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
-                if to_list:
-                    if deep_check:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
-                    else:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+        if data.empty:
+            break
 
-                else:
-                    
-                    if deep_check:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
-                    else:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
+        First_Value = data[ColName].iloc[0]
 
-                data.drop(ColName,inplace=True,axis=1)
-                print("Done!")
-                print("-"*50)
+        if isinstance(First_Value , str) and (First_Value.strip().startswith("[") or First_Value.strip().startswith("{")):
+            print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
 
+            if deep_check:
+                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
+            elif to_list:
+                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
+            else:
+                data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
 
+            data.drop(ColName,inplace=True,axis=1)
+            print("Done!")
+            print("-"*50)
 
-
-    elif col_name == "all":
-        for ColName in data.columns:
-            
-            First_Value = data[ColName].iloc[0]
-
-
-            if isinstance(First_Value , str) and (First_Value.strip().startswith("[") or First_Value.strip().startswith("{")):
-                print(f"Found A column ({ColName}) Have lists string.\nNow Trying to parses string representations of lists in DataFrame columns to actual NumPy arrays.")
-                if to_list:
-                    if deep_check:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
-                    else:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : list(literal_eval(x)) if pd.notna(x) else nan)
-
-                else:
-                    
-                    if deep_check:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : _parse_value_(x,to_list=to_list) if pd.notna(x) else nan)
-                    else:
-                        data[f"{ColName.capitalize()}List"] = data[ColName].apply(lambda x : array(literal_eval(x)) if pd.notna(x) else nan)
-
-                data.drop(ColName,inplace=True,axis=1)
-                print("Done!")
-                print("-"*50)
-
-    else:
-        raise NameError and ValueError("There is Input Column Name maybe not found in your Data Columns, Please Check the column name!")
-            
     if file_format != None and file_format.strip().lower() in ['csv','txt','tsv','xls','xlsx','json','parquet','pkl','feather','db','sqlite']:
         save_as(data=data,ext=file_format)
 

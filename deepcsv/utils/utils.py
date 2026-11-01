@@ -90,8 +90,28 @@ def _val_dtype(x,dtype):
         return str(x)
     elif dtype == float:
         return float(x)
+    elif dtype == int:
+        return int(x)
     else:
         return bool(x)
+
+
+def _resolve_cols(col_name, data):
+    """
+    Turns col_name into a validated list of column names.
+    Accepts "all", a single column name, or a list of column names.
+    """
+    if isinstance(col_name, str):
+        name = col_name.strip()
+        if name in data.columns:
+            return [name]
+        if name == "all":
+            return list(data.columns)
+    elif isinstance(col_name, list) and len(col_name) > 0:
+        if all(col in data.columns for col in col_name):
+            return list(col_name)
+
+    raise ValueError("There is Input Column Name maybe not found in your Data Columns, Please Check the column name!")
 
 # ──────────────────────────────────────────────
 #               PUBLIC FUNCTIONS
@@ -295,15 +315,17 @@ def auto_fix(data_input: Union[str, pd.DataFrame],col_name: Union[str, list] = "
         df = read_any(data_input)
     except Exception:
         df = data_input
-    
-    
-    if col_name == df.columns or col_name.strip() in df.columns:
-        ColName = col_name
 
+    # Work on a copy so the user's DataFrame is never changed in place
+    df = df.copy()
+
+    for ColName in _resolve_cols(col_name, df):
+
+        # Step 1: mixed types -> convert everything to the most common type
         if len(df[ColName].apply(type).unique()) == 2:
-            print(f"This column/s ({ColName}) Have mixed DTypes!")
+            print(f"Found a column ({ColName}) Have mixed DTypes!")
             print(f"This Col Have These DTypes: {df[ColName].apply(type).unique()}\nNOW TRYING TO FIX!")
-            
+
             dtype_dict = dict(df[ColName].apply(type).value_counts().to_dict())
             dtype_values_list = [dtype_value for dtype_value in dtype_dict.values()]
             dtype = None
@@ -312,71 +334,29 @@ def auto_fix(data_input: Union[str, pd.DataFrame],col_name: Union[str, list] = "
                     if dtype_dict[dtype_name] == max(dtype_values_list):
                         dtype = dtype_name
 
-            
                 df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
 
-            except: 
+            except:
+                # Most common type failed -> fall back to the less common one
                 for dtype_name in dtype_dict.keys():
                     if dtype_dict[dtype_name] == min(dtype_values_list):
                         dtype = dtype_name
 
-            
                 df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
             print("Done!")
             print("—"*35)
 
+        # Step 2: numbers stored as strings -> real numerical values
         if len(df[df[ColName].apply(str).str.isnumeric()]) >= len(df[df[ColName].apply(str).str.isnumeric() == False]):
 
             print(f"WARNING:\nFound numbers as {len(df[ColName].apply(type).unique())} in a column called ({ColName})")
 
             print(f"System : Trying to fix and converting the column as a Numerical Values...")
             df[ColName] = pd.to_numeric(df[ColName], errors='coerce')
-            
-            
+
             print("Done!")
             print("—"*35)
 
-    
-    elif col_name == "all":
-
-        for ColName in df.columns:
-            if len(df[ColName].apply(type).unique()) == 2:
-                print(f"Found a column ({ColName}) Have mixed DTypes!")
-                print(f"This Col Have These DTypes: {df[ColName].apply(type).unique()}\nNOW TRYING TO FIX!")
-                
-                dtype_dict = dict(df[ColName].apply(type).value_counts().to_dict())
-                dtype_values_list = [dtype_value for dtype_value in dtype_dict.values()]
-                dtype = None
-                try:
-                    for dtype_name in dtype_dict.keys():
-                        if dtype_dict[dtype_name] == max(dtype_values_list):
-                            dtype = dtype_name
-
-                
-                    df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
-
-                except: 
-                    for dtype_name in dtype_dict.keys():
-                        if dtype_dict[dtype_name] == min(dtype_values_list):
-                            dtype = dtype_name
-
-                
-                    df[ColName] = df[ColName].apply(lambda x: _val_dtype(x,dtype))
-                print("Done!")
-                print("—"*35)
-
-            if len(df[df[ColName].apply(str).str.isnumeric()]) >= len(df[df[ColName].apply(str).str.isnumeric() == False]):
-
-                print(f"WARNING:\nFound numbers as {len(df[ColName].apply(type).unique())} in a column called ({ColName})")
-
-                print(f"System : Trying to fix and converting the column as a Numerical Values...")
-                df[ColName] = pd.to_numeric(df[ColName], errors='coerce')
-                
-                
-                print("Done!")
-                print("—"*35)
-    else:
-        raise NameError and ValueError("There is Input Column Name maybe not found in your Data Columns, Please Check the column name!")
     return df
 
 
