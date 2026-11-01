@@ -18,6 +18,16 @@
 
 ---
 
+## 🎬 See it in action
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/abdubakr77/deepcsv/main/assets/demo.gif" alt="deepcsv demo: data_details() finds the problems in an Excel file, auto_fix(), process_file() and auto_outliers() fix them, and the second report is clean" style="width:90%;">
+</div>
+
+A messy Excel file — numbers saved as text, lists saved as strings, 3 outliers. `data_details()` finds all three, one line fixes each, and the second report comes back clean. *(Real output of deepcsv, not a mock-up.)*
+
+---
+
 ## The Problem
 
 <div align="center">
