@@ -35,7 +35,7 @@ def _count_outliers(series):
 
 
 def _count_duplicates(data):
-    """Duplicate rows — falls back to text comparison when cells hold lists/arrays."""
+    """Duplicate rows. Falls back to text comparison when cells hold lists/arrays."""
     try:
         return int(data.duplicated().sum())
     except TypeError:

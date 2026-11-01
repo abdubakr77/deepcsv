@@ -38,7 +38,7 @@ def _check_for_updates():
         current = _version("deepcsv")
         if latest != current:
             print(
-                f"DeepCSV: update available — run 'pip install deepcsv -U' ({latest})"
+                f"DeepCSV {latest} is available. Run 'pip install deepcsv -U' to update."
             )
     except PackageNotFoundError:
         pass

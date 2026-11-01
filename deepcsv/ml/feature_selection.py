@@ -9,7 +9,7 @@ def auto_fs(
     corr_threshold=0.3
 ):
     """
-    Auto Feature Selection — automatically selects the most relevant features for a given target.
+    Auto Feature Selection. Picks the most relevant features for a given target.
 
     Parameters
     ----------
@@ -21,9 +21,9 @@ def auto_fs(
         Custom model to use in balanced/accurate modes. Defaults to auto-tuned Ridge or GradientBoosting.
     mode : str, default "balanced"
         Selection strategy:
-        - "fast"     : correlation filter only — fastest, no model involved
-        - "balanced" : Ridge + cross-validation loop — smarter, moderate speed
-        - "accurate" : GradientBoosting + cross-validation loop — slowest, most accurate
+        - "fast"     : correlation filter only, fastest, no model involved
+        - "balanced" : Ridge + cross-validation loop, smarter, moderate speed
+        - "accurate" : GradientBoosting + cross-validation loop, slowest, most accurate
     corr_threshold : float, default 0.3
         Minimum absolute correlation to keep a feature. Used in "fast" mode only.
 
@@ -46,7 +46,7 @@ def auto_fs(
     else:
         # ── FAST MODE ──────────────────────────────────────────────
         # Uses correlation matrix to filter features quickly
-        # No model involved — just drops anything below corr_threshold
+        # No model involved, just drops anything below corr_threshold
         if mode == "fast":
 
             column_to_keep = []
@@ -116,7 +116,7 @@ def auto_fs(
                 n_rows : int
                     Number of rows in the dataset.
                 n_features : int, optional
-                    Number of features — adjusts depth, estimators, and split threshold.
+                    Number of features. Adjusts depth, estimators, and split threshold.
 
                 Returns
                 -------
@@ -153,19 +153,19 @@ def auto_fs(
                 # Adjust params based on feature count
                 if n_features is not None:
                     if n_features > 50:
-                        # Many features — increase complexity
+                        # Many features: increase complexity
                         params["max_depth"] = min(params["max_depth"] + 2, 7)
                         params["n_estimators"] = int(params["n_estimators"] * 1.5)
                         params["min_samples_split"] = params["min_samples_split"] + 4
 
                     elif n_features > 20:
-                        # Moderate features — slight boost
+                        # Moderate features: slight boost
                         params["max_depth"] = min(params["max_depth"] + 1, 6)
                         params["n_estimators"] = int(params["n_estimators"] * 1.2)
                         params["min_samples_split"] = params["min_samples_split"] + 2
 
                     elif n_features < 10:
-                        # Few features — simplify to avoid overfitting
+                        # Few features: simplify to avoid overfitting
                         params["max_depth"] = max(params["max_depth"] - 1, 2)
                         params["n_estimators"] = int(params["n_estimators"] * 0.8)
 

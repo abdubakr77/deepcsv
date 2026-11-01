@@ -11,7 +11,7 @@ def auto_outliers(
     threshold: Optional[float] = None,
 ):
     """
-    Auto Remove Outliers — detects outliers in numeric columns and removes their rows.
+    Auto Remove Outliers. Detects outliers in numeric columns and removes their rows.
 
     Parameters
     ----------
@@ -22,9 +22,9 @@ def auto_outliers(
         Pass your column list to keep a target column untouched.
     method : str, default "iqr"
         Detection strategy:
-        - "iqr"              : value outside [Q1 - t*IQR, Q3 + t*IQR] — fast, ignores extreme values
-        - "zscore"           : |value - mean| / std is bigger than t — fast, best for bell-shaped data
-        - "isolation_forest" : looks at all columns together — slower, finds rows that are
+        - "iqr"              : value outside [Q1 - t*IQR, Q3 + t*IQR], fast, ignores extreme values
+        - "zscore"           : |value - mean| / std is bigger than t, fast, best for bell-shaped data
+        - "isolation_forest" : looks at all columns together, slower, finds rows that are
                                strange only as a combination (needs scikit-learn)
     threshold : float, optional
         Strength of the detection. Defaults per method:
