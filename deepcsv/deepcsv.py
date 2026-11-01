@@ -89,7 +89,7 @@ def process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, 
         data = utils.auto_fix(data_input=data,col_name=col_name)
 
     if deep_check:
-        print("⚠️  Deep Check is enabled — recursively parsing nested lists/dicts. This may take longer on large datasets.")
+        print("WARNING: Deep Check is enabled - recursively parsing nested lists/dicts. This may take longer on large datasets.")
 
     # "all", one column name, or a list of names -> list of columns
     for ColName in _resolve_cols(col_name, data):

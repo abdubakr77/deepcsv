@@ -57,6 +57,13 @@ class TestProcessFile(unittest.TestCase):
             deepcsv.process_file(self.df, deep_check=True)
         self.assertEqual(buffer.getvalue().count("Deep Check is enabled"), 1)
 
+    def test_deep_check_warning_is_ascii(self):
+        # a legacy Windows console (cp1252) can not print emoji
+        buffer = StringIO()
+        with redirect_stdout(buffer):
+            deepcsv.process_file(self.df, deep_check=True)
+        buffer.getvalue().encode("cp1252")
+
     def test_input_dataframe_not_changed(self):
         before = self.df.copy()
         _quiet(deepcsv.process_file, self.df)
