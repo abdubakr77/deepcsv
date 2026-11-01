@@ -11,6 +11,7 @@ from .utils import (
     _resolve_cols,
 )
 from .details import data_details
+from .merge import merge_data
 
 __all__ = [
     "read_any",
@@ -18,6 +19,7 @@ __all__ = [
     "auto_fix",
     "save_as",
     "data_details",
+    "merge_data",
     "_validate_cols",
     "_validate_index",
     "_parse_operator",
