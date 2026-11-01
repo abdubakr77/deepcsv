@@ -58,6 +58,9 @@ This is the silent killer of every data pipeline.
 
 ```bash
 pip install deepcsv
+
+# with the ML tools (auto_fs, auto_outliers)
+pip install deepcsv[ml]
 ```
 
 ---
@@ -78,6 +81,9 @@ pip install deepcsv
 | `clean_values()` | Cleans nulls, values, types with full control |
 | `auto_fix()` | Detects and fixes mixed data types automatically and MORE |
 | `auto_fs()` | Auto feature selection — keeps only the columns that matter for your target |
+| `auto_outliers()` | Detects outliers and removes their rows (IQR, Z-score or Isolation Forest) |
+| `data_details()` | Deep report about your data — export it as CSV or TXT |
+| `merge_data()` | Merges two datasets (any format) by a specific column |
 
 </div>
 
@@ -85,7 +91,7 @@ pip install deepcsv
 
 ## 📖 Functions
 
-### `process_file(data_input, file_format=None, to_list=False, auto_fix = False, to_list = False, deep_check = False)`
+### `process_file(data_input, file_format=None, auto_fix=False, to_list=False, deep_check=False, col_name="all")`
 
 Reads a file or DataFrame, converts array-like strings to NumPy arrays, fixes mixed-type columns, and optionally saves the result.
 
@@ -108,6 +114,8 @@ df = deepcsv.process_file('path/to/file.csv', deep_check=True)
 df = deepcsv.process_file('path/to/file.csv', col_name=["col1","col2"])
 ```
 
+| Parameter | Type | Default | Description |
+|---|---|---|---|
 | `deep_check` | `bool` | `False` | `True`: recursively parses nested lists/dicts inside arrays — may be slower on large datasets |
 | `col_name` | `str \| list` | `"all"` | Column name or list of names to process. Default `"all"` processes every column. Pass a single name like `"genres"` or a list `["genres", "tags"]` to target specific columns |
 
@@ -115,7 +123,7 @@ df = deepcsv.process_file('path/to/file.csv', col_name=["col1","col2"])
 
 ---
 
-### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_format="parquet", auto_fix = False, to_list = False, DeepCheck=True)`
+### `process_all_files(directory_path, output_dir="All CSV Files is Converted Here", file_format="parquet", auto_fix=False, to_list=False, deep_check=False)`
 
 Walks through all folders and subfolders, applies `process_file` on every supported file, and saves results.
 
@@ -228,13 +236,16 @@ df = auto_fix('data.csv', col_name=['age', 'score', 'price'])
 ### `auto_fs(df, target, model=None, mode="balanced", corr_threshold=0.3)`
 
 Automatically selects the most important features for a given target column.
-Two modes available — pick speed or accuracy.
+Three modes available — pick speed or accuracy.
 
 ```python
 from deepcsv.ml import auto_fs
 
 # Balanced mode (default) — uses Ridge + cross-validation to drop weak features
 result = auto_fs(df, target='price')
+
+# Accurate mode — GradientBoosting + cross-validation, slowest but most precise
+result = auto_fs(df, target='price', mode='accurate')
 
 # Fast mode — uses correlation threshold only, much faster on large datasets
 result = auto_fs(df, target='price', mode='fast')
@@ -251,8 +262,122 @@ result = auto_fs(df, target='price', mode='fast', corr_threshold=0.4)
 | `mode` | `str` | `"balanced"` | `"fast"`: correlation filter only — `"balanced"`: Ridge + cross-val loop — `"accurate"`: GradientBoosting + cross-val, slowest but most precise |
 | `corr_threshold` | `float` | `0.3` | Minimum correlation to keep a feature (used in `fast` mode) |
 
-> **Note:** `auto_fs` is part of the `deepcsv.ml` subpackage — install scikit-learn to use it.
+> **Note:** `auto_fs` is part of the `deepcsv.ml` subpackage — install the extras with `pip install deepcsv[ml]` (scikit-learn + tqdm) to use it.
 
+---
+
+### `auto_outliers(df, cols=None, method="iqr", threshold=None)`
+
+Detects outliers in numeric columns and removes their rows. A row is removed if it is an outlier in **any** checked column. Missing values are never counted as outliers.
+
+```python
+from deepcsv.ml import auto_outliers
+
+# IQR rule on every numeric column (default)
+clean = auto_outliers(df)
+
+# Check only some columns (keep your target column untouched)
+clean = auto_outliers(df, cols=['age', 'salary'])
+
+# Z-score with a stricter threshold
+clean = auto_outliers(df, method='zscore', threshold=2.5)
+
+# Look at all columns together — catches rows that are strange only as a combination
+clean = auto_outliers(df, method='isolation_forest', threshold=0.1)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `df` | `str \| DataFrame` | required | File path or DataFrame |
+| `cols` | `list` | `None` | Numeric columns to check. Default: all numeric columns |
+| `method` | `str` | `"iqr"` | `"iqr"`: outside `Q1 - t*IQR` / `Q3 + t*IQR` — `"zscore"`: `abs(z) > t` — `"isolation_forest"`: multi-column detection (needs scikit-learn) |
+| `threshold` | `float` | `None` | `t` of the method. Defaults: `1.5` (iqr), `3.0` (zscore), `0.05` = share of outliers (isolation_forest) |
+
+> The original index is kept, so you can see which rows were removed.
+
+---
+
+### `data_details(data_input, export=None, output_path="data_details", show=True)`
+
+Shows deep details about your data — size, memory, missing values, duplicates, types, unique values, numeric stats, outliers — and tells you **which deepcsv function fixes each problem**.
+
+```python
+from deepcsv import data_details
+
+report = data_details('data/users.csv')            # print the report
+report = data_details(df, export='csv')            # also save the columns table
+report = data_details(df, export='txt')            # also save the full report
+report = data_details(df, export=['csv', 'txt'], output_path='reports/users')
+
+report['overview']   # dict with rows, columns, memory, duplicates, missing cells
+report['columns']    # DataFrame, one row per column
+report['warnings']   # list of problems found
+```
+
+```text
+============================================================
+ DATA DETAILS
+============================================================
+Rows            : 6
+Columns         : 4  (numeric: 1, other: 3)
+Memory          : 0.001 MB
+Duplicate rows  : 0
+Missing cells   : 1 (4.17%)
+
+------------------------------------------------------------
+ COLUMNS
+------------------------------------------------------------
+column  dtype  non_null  nulls  null_%  unique
+   age  int64         6      0    0.00       6
+ price object         6      0    0.00       6
+  tags object         6      0    0.00       1
+  city object         5      1   16.67       2
+
+------------------------------------------------------------
+ NUMERIC STATS
+------------------------------------------------------------
+column   mean     std  min  25%  50%  75%   max  outliers
+   age 74.167 110.671 25.0 27.5 30.0 32.5 300.0         1
+
+------------------------------------------------------------
+ WARNINGS
+------------------------------------------------------------
+- (age) has 1 outliers - remove them with ml.auto_outliers().
+- (price) stores numbers as text - fix it with auto_fix().
+- (tags) has a single value - it carries no information.
+- (tags) stores lists/dicts as strings - convert it with process_file().
+============================================================
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `data_input` | `str \| DataFrame` | required | File path (any supported format) or DataFrame |
+| `export` | `str \| list` | `None` | `"csv"`: columns table — `"txt"`: full report — `["csv", "txt"]`: both |
+| `output_path` | `str` | `"data_details"` | File path without extension |
+| `show` | `bool` | `True` | `False`: do not print, only return the report |
+
+---
+
+### `merge_data(left, right, on, how="inner", suffixes=("_x", "_y"))`
+
+Merges two datasets by a specific column (or a list of columns). Each dataset can be a file in **any** supported format or a DataFrame — so you can merge a CSV with an Excel file directly.
+
+```python
+from deepcsv import merge_data
+
+df = merge_data('users.csv', 'orders.xlsx', on='user_id')
+df = merge_data(users_df, orders_df, on='user_id', how='left')
+df = merge_data('a.csv', 'b.csv', on=['country', 'year'], how='outer')
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `left`, `right` | `str \| DataFrame` | required | File path or DataFrame |
+| `on` | `str \| list` | required | Column name(s) that exist in both datasets |
+| `how` | `str` | `"inner"` | `"inner"`, `"left"`, `"right"` or `"outer"` |
+| `suffixes` | `tuple` | `("_x", "_y")` | Added to columns with the same name in both datasets |
+
+> A warning is printed when repeated keys can multiply rows.
 
 ---
 
@@ -260,11 +385,14 @@ result = auto_fs(df, target='price', mode='fast', corr_threshold=0.4)
 
 ```python
 process_file(data_input: Union[str, pd.DataFrame], file_format: str = None, auto_fix: bool = False, to_list: bool = False, deep_check: bool = False, col_name:  Union[str, list] = "all") -> pd.DataFrame
-process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix = False,to_list = False, DeepCheck=True) -> None
+process_all_files(directory_path: str, output_dir="All CSV Files is Converted Here",file_format= "parquet",auto_fix=False, to_list=False, deep_check=False) -> None
 read_any(file_path: str) -> pd.DataFrame
 clean_values(data_input, cols=None, ax_0=False, index=None, condition=None, all_cols_except=None, finding_value=None, finding_type=None) -> pd.DataFrame
 auto_fix(data_input: Union[str, pd.DataFrame], col_name: Union[str, list] = "all") -> pd.DataFrame
 auto_fs(df: pd.DataFrame, target: str, model=None, mode: str = "balanced", corr_threshold: float = 0.3) -> pd.DataFrame
+auto_outliers(df: Union[str, pd.DataFrame], cols: list = None, method: str = "iqr", threshold: float = None) -> pd.DataFrame
+data_details(data_input: Union[str, pd.DataFrame], export: Union[str, list] = None, output_path: str = "data_details", show: bool = True) -> dict
+merge_data(left: Union[str, pd.DataFrame], right: Union[str, pd.DataFrame], on: Union[str, list], how: str = "inner", suffixes: tuple = ("_x", "_y")) -> pd.DataFrame
 ```
 
 ---
@@ -276,7 +404,10 @@ auto_fs(df: pd.DataFrame, target: str, model=None, mode: str = "balanced", corr_
 - Deep recursive parsing for nested lists and dicts stored as strings inside arrays
 - Mixed-type column detection and auto-fix with logging
 - Auto-fix supports column targeting — fix one column or a custom list
-- Auto feature selection with two modes: correlation-based (fast) or cross-validation (balanced)
+- Auto feature selection with three modes: correlation-based (fast), Ridge cross-validation (balanced) or GradientBoosting (accurate)
+- Auto outlier removal with IQR, Z-score or Isolation Forest
+- Deep data report that names the deepcsv function fixing each problem — export it as CSV or TXT
+- Merge datasets of different formats by a specific column
 - Save in any format — CSV, Excel, JSON, Parquet, Feather, and more
 - One universal file reader supporting 10+ formats
 - Flexible null cleaning by column, row, index, value, or type
@@ -298,6 +429,7 @@ auto_fs(df: pd.DataFrame, target: str, model=None, mode: str = "balanced", corr_
 - Python >= 3.7
 - pandas
 - pyarrow
+- scikit-learn + tqdm (optional, only for `deepcsv.ml` — `pip install deepcsv[ml]`)
 
 ---
 
