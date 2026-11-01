@@ -9,6 +9,7 @@
 - Added `auto_outliers()` in `deepcsv.ml` — detects and removes outlier rows with `iqr`, `zscore` or `isolation_forest` (#37)
 - Added `data_details()` — deep report about your data (size, memory, missing values, duplicates, types, numeric stats, outliers) with a hint for the deepcsv function that fixes each problem (#27)
 - `data_details()` can export the report as CSV (columns table) or TXT (full report) with `export=` (#30)
+- `data_details()` also flags text columns that mostly hold numbers (ex: `"120"`, `"95"`, `"TBD"`) and says how many values are not numbers
 - Added `merge_data()` — merges two datasets of any supported format by a specific column (#4)
 - Added `pip install deepcsv[ml]` extra for scikit-learn and tqdm
 - Added unit tests in `tests/`
